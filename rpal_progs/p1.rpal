@@ -1,3 +1,3 @@
-let f n = rf n 1 where
-        rec rf n r = n eq 1 -> r | rf  (n-1) (n*r)
+let f n = rf n 1 where //this is a comment
+        rec rf n r = n eq 1 -> r | rf  (n-1) (n*r) // this is awesome ..its jus truncated...
 in Print (f 3, f 5, f 7)
