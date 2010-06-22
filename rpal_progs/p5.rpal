@@ -1,0 +1,27 @@
+let int_elements T = rint T (Order T)
+        where rec rint T N = N eq 0 -> true
+                    | not Isinteger (T N) -> false
+                    | rint T (N-1)
+
+within
+add_remaining s2 result c2 = rec_add_remaining s2 result c2 where
+        rec rec_add_remaining s2 result c2 = c2 eq (Order s2) -> (result aug (s2 c2))
+                                |   rec_add_remaining s2 (result aug (s2 c2)) (c2+1)
+//add_remaining s2 c2 result = c2
+within
+merge_tuples t1 t2 = merge_tuples_rec t1 t2 (Order t2) 1 1 nil  where
+        rec  merge_tuples_rec s1 s2 s2_N c1 c2 result = c1 eq ((Order s1)+1) -> add_remaining s2 result c2
+                                        | c2 eq ((Order s2)+1) -> add_remaining s1 result c1
+                                        | (s1 c1) < (s2 c2) -> merge_tuples_rec s1 s2 s2_N (c1+1) c2 (result aug (s1 c1))
+                                        | (s1 c1) > (s2 c2) -> merge_tuples_rec s1 s2 s2_N c1 (c2+1) (result aug (s2 c2))
+                                        |  merge_tuples_rec s1 s2 s2_N (c1+1) (c2+1) (result aug (s1 c1) aug (s2 c2))
+within
+merge t1 t2 = not (Istuple t1 & Istuple t2) -> 'One of the input is not a tuple'
+                        | not (int_elements t1 & int_elements t2) -> 'Tuples should be integers'
+                        | Null t1 & Null t2 -> 'Both the lists are empty'
+                        | Order t1 eq 0 -> t2
+                        | Order t2 eq 0 -> t1
+                        | merge_tuples t1 t2
+
+
+ in Print (merge(11,12,13) (2,4,6,8,9,10))
