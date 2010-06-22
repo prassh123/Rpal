@@ -102,7 +102,7 @@ class Lexer<E> {
         			        System.out.println ("Operator Found " +  operator);
         			        if (sb.length()>0) {
         			        	System.out.println ("Adding a complete token " + sb);
-        			        	tokenList.add((E) sb);
+        			        	tokenList.add((E) sb.toString());
         			        } 
         			        if (operator == '-' && ((String)token).charAt(i+1) !=0 &&  ((String)token).charAt(i+1) == '>') {
         			        	tokenList.add((E) "->");	
@@ -140,7 +140,7 @@ class Lexer<E> {
         			    else { 
         			    	System.out.println ("I think this is a complete  token " + sb);
     			        	if (sb.length() > 0)
-        			    	    tokenList.add((E) sb);
+        			    	    tokenList.add((E) sb.toString());
         			    	status=false;
         			    }
         			}
@@ -148,7 +148,7 @@ class Lexer<E> {
         				
         				System.out.println ("Operator not found, so jus adding " + sb);
         				if (sb.length() > 0)
-        				    tokenList.add((E) sb);
+        				    tokenList.add((E) sb.toString());
         				status = false;
         				continue;
         			}
@@ -293,11 +293,16 @@ class Lexer<E> {
       
 		public void printLexTable () {
         	for (E token: tokenList ) {
+        		try {
         		lexTable.put((String) token, this.getTypeOfToken((String)token));
+        		}
+        		catch (Exception e) {
+        			e.printStackTrace();
+        		}
         		//this.getTypeOfToken((String) token);
         	}
-        	System.out.print(lexTable);
-        }
+        		System.out.print(lexTable);
+		    }
         
         public static void main(String args[]) {
                 Lexer lexer = new Lexer ();
