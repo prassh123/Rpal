@@ -45,13 +45,31 @@ class Lexer<E> {
         	StringTokenizer st = new StringTokenizer (contents.toString(), " ");
         	boolean status = false;
         	E token = (E) "";
+        	//String tempToken =  "";
         	//ArrayList queue = new ArrayList();
         	
         	while (st.hasMoreTokens()) {
         		
         		if (! status) {
-        			 token = (E) st.nextToken().trim();			// We only get the next token if the status is true. because we might have additional sequences of ((((( etc...
+        			token =  (E) st.nextToken().trim();
+        						// We only get the next token if the status is true. because we might have additional sequences of ((((( etc...
+        			 
         			 System.out.println ("About to classify " + token );
+        		}
+        		if (((String) token).startsWith ("'")) {
+        			System.out.println("Token started with ");
+        			StringBuffer buffer = new StringBuffer ();
+        			while (((String) token).endsWith("'") != true)  {
+         			    buffer.append(token);
+         			    token =  (E) st.nextToken();
+        			}
+        		//	if (isString(buffer.toString())) 	{	// This is to detect strings in the input...Letz skip this for now because we are having issues with spaces...
+        			    buffer.append(token);  			// We add the remaining token before pushing it into the arraylist
+        			    tokenList.add((E) buffer.toString());
+        				System.out.println ("Adding token " + buffer.toString());
+        		//	}
+        		    status=false;
+        		    continue;
         		}
         		if (token.equals("<eol>") || token.equals ("\t")) {
         			status = false;
@@ -72,6 +90,7 @@ class Lexer<E> {
         			int i = 0;
         			char operator = 0 ;
         			boolean operatorFound = true;
+        			
         			while ( i < temp.length() &&  (((String)token).charAt(i)) != 0 && !(isOperatorSymbol(new String(""+((String)token).charAt(i))))   && !isLeftBracketSymbol(new String(""+((String)token).charAt(i))) 
         					    && !isRightBracketSymbol (new String(""+((String)token).charAt(i)))  &&  !isCommaOperatorSymbol(new String(""+((String)token).charAt(i))) && temp.length()>1
         		        						)
@@ -107,6 +126,17 @@ class Lexer<E> {
         			        if (operator == '-' && ((String)token).charAt(i+1) !=0 &&  ((String)token).charAt(i+1) == '>') {
         			        	tokenList.add((E) "->");	
         			        	System.out.println ("Token added ->");
+        			        	System.out.println ("String token"+ ((String)token).length() + "and I+2 value " + (i+2) );
+        			        	if ( (i+2) >= ((String)token).length()) {
+        			        		status = false;
+        			        		continue;
+        			        	}
+        			        	else {
+        			        		
+        			        		token = (E) ((String)token).substring(i+2);
+        			        		temp = (String) token;
+        			        		System.out.println ("There is a token further so, making the token as " +token );
+        			        	}
         			        }
         			        else {
         			        	System.out.println ("Adding Operator " + operator);
@@ -222,7 +252,14 @@ class Lexer<E> {
         	return result;  	
         }
         private boolean isIdentifier (String token) {
-        	Pattern p = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");  // pattern to detect identifiers valid are the ones that start with _, letters and digits followed only by those. 
+        	Pattern p = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_]*$");  // pattern to detect identifiers valid are the ones that start with _, letters and digits followed only by those. 
+        	Matcher match = p.matcher(token);
+        	boolean result = match.find();
+        	return result;  	
+        }
+       
+        private boolean isString (String token) {
+        	Pattern p = Pattern.compile("^'[\t\n\\\\\\();,a-zA-Z0-9-+*/<>&.@/:=~|$!#%^_\\[\\]{}\"'?\\s]*'$");  // Strings.. Note the \s space at the end...
         	Matcher match = p.matcher(token);
         	boolean result = match.find();
         	return result;  	
@@ -284,7 +321,14 @@ class Lexer<E> {
         		System.out.println( token + "\t" + "Identifier");
         		return "Identifier";
            	}
-        	
+        	else if (isArrow(token)) {
+        		System.out.println( token + "\t" + "Arrow");
+        		return "Arrow";
+        	}
+        	else if (isString (token)) {
+        		System.out.println( token + "\t" + "String");
+        		return "String";
+        	}
         	else {
         		System.out.println( token + "\t" + "Unknown");
         		return "Unknown";
@@ -308,7 +352,7 @@ class Lexer<E> {
                 Lexer lexer = new Lexer ();
                 lexer.readFile (args[0]);
                lexer.constructTokens();
-               // System.out.println("The result  " + lexer.isArrow("-"));
+                //System.out.println("The result  " + lexer.isIdentifier("'12'"));
                 lexer.printLexTable();
         }
 }
