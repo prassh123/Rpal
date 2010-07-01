@@ -38,7 +38,7 @@ class TreeNode {
 
 public class Parser {
     Lexer lexer = new Lexer ();
-    HashMap lexTable;
+   // HashMap lexTable;
     private static String nextToken;
     private static int index = -1;
     Stack stack = new Stack ();
@@ -53,7 +53,7 @@ public class Parser {
     	 lexer.readFile (fileName);
     	 lexer.constructTokens();
     	 tokenList = lexer.getTokens();
-    	 lexTable = lexer.getLexTable();
+    	// lexTable = lexer.getLexTable();
     	 
     	 nextToken = getNextToken();
     }
@@ -175,14 +175,14 @@ public class Parser {
 	 * 
 	 ************************************************************/
 	
-	public void func_E () {
-		System.out.println ("Next Token "+ nextToken);
+	public void fn_E () throws Exception {
+		//System.out.println ("Next Token "+ nextToken);
 		if (nextToken.equalsIgnoreCase("let")) {
 			try {
 				readToken("let");
-				func_D ();
+				fn_D ();
 				readToken("in");
-				func_E ();
+				fn_E ();
 				Build_tree("let", 2);
 				
 			} catch (Exception e) {
@@ -194,11 +194,11 @@ public class Parser {
 				readToken ("fn");
 				int n = 0;
 				do {
-					func_Vb();
+					fn_Vb();
 					n++;
 					} while (lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
 				readToken (".");
-				func_E ();
+				fn_E ();
 				Build_tree ("lambda", n+1);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -206,45 +206,38 @@ public class Parser {
 			
 		}
 		else 
-			func_Ew ();
+			fn_Ew ();
 	}
 
 
-	private void func_Ew() {
-		func_T ();
+	private void fn_Ew() throws Exception {
+		fn_T ();
 		if (nextToken.equalsIgnoreCase ("where")) {
-			try {
-				readToken ("where");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			func_Dr();
+			readToken ("where");		
+			fn_Dr();
 			Build_tree("where", 2);
 		}
 		
 	}
 
 
-	private void func_Dr() {
-		// TODO Auto-generated method stub
+	private void fn_Dr() throws Exception {
+		
 		if (nextToken.equalsIgnoreCase ("rec")) {
-			try {
 				readToken ("rec");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
-		func_Db();
 		Build_tree("rec", 1);
+		fn_Db();
+		
 	}
 
 
-	private void func_Db() {
+	private void fn_Db() throws Exception {
         
 		if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("(")) {
 			try {
 				readToken ("(");
-				func_D ();
+				fn_D ();
 				readToken (")");
 				readToken (";");
 			} catch (Exception e) {
@@ -255,7 +248,7 @@ public class Parser {
 		else if ( lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
         	int n = 0;
         	do {
-				func_Vb();
+				fn_Vb();
 				n++;
 				} while (lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
         	try {
@@ -263,53 +256,49 @@ public class Parser {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			func_E ();
+			fn_E ();
 			Build_tree("fcn_form", n+1);
         }
    	}
 
 
-	private void func_T() {
-		func_Ta ();
-		if (lexer.getTypeOfToken(nextToken).equals ("(")) {
-			try {
+	private void fn_T() throws Exception {
+		fn_Ta ();
+		if (lexer.getTypeOfToken(nextToken).equals ("(")) {		
 				int n = 0;
 			do {
 				readToken ("(") ;
 				readToken (",") ;
-				func_Ta();
+				fn_Ta();
+				readToken (")") ;
 				n++;
 			} while (lexer.getTypeOfToken(nextToken).equals ("(") );
-			Build_tree("tau", n+1);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			Build_tree("tau", n);
 		}
-		
+		else 
+			readToken (";");
 	}
 
 
-	private void func_Ta() {
-		func_Tc ();
+	private void fn_Ta() throws Exception {
+		fn_Tc ();
 		
-		while (nextToken.equalsIgnoreCase ("aug")) {
-			try {
-				readToken ("aug");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			func_Tc();
-			Build_tree ("aug", 2);
-		}  
-		
+		if (nextToken.equalsIgnoreCase (";")) {
+			readToken (";");
+		}
+		else {
+		    while (nextToken.equalsIgnoreCase ("aug")) {
+			    readToken ("aug");
+			    fn_Tc();
+			    Build_tree ("aug", 2);
+		    }  
+		}
 	}
 
 
-	private void func_Tc() {
-		func_B ();
-		try {
-		if (nextToken.equalsIgnoreCase("->")) {
-			
+	private void fn_Tc() throws Exception {
+		fn_B ();
+		if (nextToken.equalsIgnoreCase("->")) {		
 			readToken ("->");
 			fn_Tc();
 			readToken ("|");
@@ -318,60 +307,53 @@ public class Parser {
 		}
 		else 
 			readToken (";");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
  	}
 
 
-	private void func_B() {
-		try {
-        func_Bt ();
+	private void fn_B() throws Exception {
+        fn_Bt ();
         if (nextToken.equalsIgnoreCase("or")) {
-        	readToken ("or");
-        	func_Bt ();
-        	Build_tree ("or", 2);
+        	while(nextToken.equalsIgnoreCase("or")) {
+        	    readToken ("or");
+        	    fn_Bt ();
+        	    Build_tree ("or", 2);
+        	}
         }
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        else
+        	readToken (";");
 	}
 
 
-	private void func_Bt() {
-		try {
-	        func_Bs ();
+	private void fn_Bt() throws Exception {
+	        fn_Bs ();
 	        if (nextToken.equalsIgnoreCase("&")) {
-	        	readToken ("&");
-	        	func_Bs ();
-	        	Build_tree ("&", 2);
+	        	while(nextToken.equalsIgnoreCase("&")) {
+	        	    readToken ("&");
+	        	    fn_Bs ();
+	        	    Build_tree ("&", 2);
+	        	}
 	        }
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+	        else
+	        	readToken (";");       
 	}
 
 
-	private void func_Bs() {
+	private void fn_Bs() throws Exception {
 		if (nextToken.equalsIgnoreCase("not")) {
-			try {
-				readToken ("not");
-				func_Bp ();
-				Build_tree ("not", 1);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
+			readToken ("not");
+			fn_Bp ();
+			Build_tree ("not", 1);
 		}
-		else
-			func_Bp();
+		else {
+			fn_Bp();
+			readToken (";");    
+		}
 		}
 
 
-	private void func_Bp() {
+	private void fn_Bp() throws Exception {
 		
 		fn_A ();
-		try {
 		if (nextToken.equalsIgnoreCase("eq")) {
 			readToken ("eq");
 			fn_A ();
@@ -383,62 +365,183 @@ public class Parser {
 			Build_tree ("ne", 2);		
 		}
 		
-		else if (nextToken.equalsIgnoreCase("(")) {
-			readToken ("(");
+		else  {
+	
 			String temp = nextToken;
 			if (temp.equalsIgnoreCase("gr") || temp.equalsIgnoreCase(">")) {
 				 readToken (temp);
-				 readToken (")");
 				 fn_A ();
 				 Build_tree("gr", 2);
 			}
 			else if (temp.equalsIgnoreCase("ge") || temp.equalsIgnoreCase(">=")) {
 				 readToken (temp);
-				 readToken (")");
 				 fn_A ();
 				 Build_tree("ge", 2);
 			}
 			else if (temp.equalsIgnoreCase("ls") || temp.equalsIgnoreCase("<")) {
 				 readToken (temp);
-				 readToken (")");
 				 fn_A ();
 				 Build_tree("ls", 2);
 			}
 			else if (temp.equalsIgnoreCase("le") || temp.equalsIgnoreCase(">")) {
 				 readToken (temp);
-				 readToken (")");
 				 fn_A ();
 				 Build_tree("le", 2);
 			}
 		}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 
-	private void fn_A() {
-		// TODO Auto-generated method stub
-		
+	private void fn_A() throws Exception {
+		if (nextToken.equalsIgnoreCase("+")) {
+			readToken ("+");
+			fn_At ();
+		}
+		else if (nextToken.equalsIgnoreCase("-")) {
+			readToken ("+");
+			fn_At ();
+			Build_tree ("neg", 1);
+		}
+		else {
+		    fn_At ();
+		    readToken (";");
+		}
+		while (nextToken.equalsIgnoreCase("+") || nextToken.equalsIgnoreCase("-")  ) {
+			if (nextToken.equalsIgnoreCase("+")) {
+				readToken ("+");
+				fn_At ();
+				Build_tree ("+", 2);
+			}
+			else {
+				readToken ("-");
+				fn_At ();
+				Build_tree ("-", 2);
+			}
+		 // nextToken = getNextToken(); I dont think this is necessary...
+		}
 	}
 
 
 	
 
 
-	private void fn_Tc() {
-		// TODO Auto-generated method stub
+	private void fn_At() throws Exception {
+		fn_Af();
+		while (nextToken.equalsIgnoreCase("*") || nextToken.equalsIgnoreCase("/")  ) {
+			if (nextToken.equalsIgnoreCase("*")) {
+				readToken ("*");
+				fn_Af();
+				Build_tree ("*", 2);
+			}
+			else {
+				readToken ("/");
+				fn_Af ();
+				Build_tree ("/", 2);
+			}
+		//	nextToken = getNextToken();
+		}
+		readToken (";");
+		
+	}
+
+	private void fn_Af() throws Exception {
+		fn_Ap();
+		if (nextToken.equalsIgnoreCase("**")) {
+			readToken ("**");
+			fn_Af();
+			Build_tree ("**", 2);
+		}
+		readToken (";");
+	}
+
+	private void fn_Ap() throws Exception {
+	    fn_R();
+	    if (nextToken.equalsIgnoreCase("**")) {
+	        while (nextToken.equalsIgnoreCase("@")) {
+	    	    readToken ("@");
+	    	    readToken (nextToken);
+	    	    fn_R();
+	    	    Build_tree ("@", 3);
+	        }
+	    }
+	    readToken (";");	
+	}
+
+	private void fn_R() throws Exception {
+		fn_Rn ();
+		int n=0;
+		while (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
+			readToken (nextToken);
+            fn_Rn ();	
+            n++;
+   		}
+		Build_tree ("gamma", n);
+	}
+
+	private void fn_Rn() throws Exception {
+		/*if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier") 
+				|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") 
+				|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase("String")) */
+					readToken (nextToken);        // should be Id or Int or String at this point..
+	    if (nextToken.equalsIgnoreCase("True")) {
+			readToken ("True");
+			Build_tree ("True", 1);
+		}
+		else if (nextToken.equalsIgnoreCase("False")) {
+			readToken ("False");
+			Build_tree ("False", 1);
+		}
+		else if (nextToken.equalsIgnoreCase("nil")) {
+			readToken ("nil");
+			Build_tree ("nil", 1);
+		}
+		else if (nextToken.equalsIgnoreCase("(")) {
+			readToken ("(");
+			fn_E();
+			readToken (")");
+		}
+		else {
+			readToken ("dummy");
+			Build_tree ("dummy",1);
+		}
 		
 	}
 
 
-	private void func_Vb() {
-		// TODO Auto-generated method stub
+
+	private void fn_Vb() throws Exception {
+		/*if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
+			readToken (nextToken);
+		}*/
+		
+			if (nextToken.equalsIgnoreCase("(")) {
+				readToken ("(");
+				if (nextToken.equalsIgnoreCase(")")) {
+					Build_tree ("()", 2);
+				}
+				else {
+					fn_V1 ();
+					readToken (")");
+				}
+			}
+		
+			else {
+				readToken (nextToken);
+			}
 		
 	}
 
 
-	private void func_D() {
+	private void fn_V1() throws Exception {
+		int n=0;
+		while (lexer.getTypeOfToken(nextToken).equals("Identifier")) {
+			readToken (nextToken);
+			n++;
+		}
+		Build_tree (",",n);
+	}
+
+	private void fn_D() {
 		
 		
 	}
