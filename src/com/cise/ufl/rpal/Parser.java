@@ -43,7 +43,13 @@ public class Parser {
     private static int index = -1;
     Stack stack = new Stack ();
     ArrayList tokenList;
-   
+    static String [] reserved = {"let", "in", "fn", "where", "aug", "within", "and"};
+    static ArrayList reservedTokens = new ArrayList ();
+    static {
+    	for (String s: reserved ) {
+    		reservedTokens.add(s);
+    	}
+    }
     /**
      * Constructor for the Parser
      * 
@@ -53,8 +59,7 @@ public class Parser {
     	 lexer.readFile (fileName);
     	 lexer.constructTokens();
     	 tokenList = lexer.getTokens();
-    	// lexTable = lexer.getLexTable();
-    	 
+    	// lexTable = lexer.getLexTable(); 
     	 nextToken = getNextToken();
     }
     
@@ -70,14 +75,16 @@ public class Parser {
      * @throws Exception
      */
     public void readToken (String token) throws Exception {
+    	System.out.println ("READING Current TOKEN: " + token + " Next Token: " + nextToken);
     	if ( ! token.equals (nextToken)) {
-    		throw new Exception ("Error: Expected "+ token + "but found "+ nextToken);
+    		throw new Exception ("Error: Expected "+ token + " but found: "+ nextToken);
     	}
     	String type = lexer.getTypeOfToken(token);
     	if (type.equalsIgnoreCase("Identifier") ||  type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("String")) {
     		Build_tree (token, 0);
     	}
     	nextToken = getNextToken ();
+    	System.out.println ("NEXT TOKEN: " + nextToken);
     }
 
     /**
@@ -109,7 +116,7 @@ public class Parser {
 				
 			}
 			Collections.reverse(treeNodesList);
-			System.out.println (treeNodesList);
+			//System.out.println (treeNodesList);
 			for (int i=0; i<treeNodesList.size()-1; i++) {
 				    treeNodesList.get(i).setRightChild(treeNodesList.get(i+1));
 			}
@@ -169,6 +176,12 @@ public class Parser {
 		return (String) tokenList.get(index);
 	}
 	
+	private boolean isReserved (String token) {
+		if (reservedTokens.contains(token)) 
+			return true;
+		else 
+			return false;
+	}
 	
 	/************************************************************
 	 * Procedures for the various Non terminals...
@@ -176,7 +189,7 @@ public class Parser {
 	 ************************************************************/
 	
 	public void fn_E () throws Exception {
-		//System.out.println ("Next Token "+ nextToken);
+		System.out.println ("In Fn E" );
 		if (nextToken.equalsIgnoreCase("let")) {
 			try {
 				readToken("let");
@@ -211,6 +224,7 @@ public class Parser {
 
 
 	private void fn_Ew() throws Exception {
+		System.out.println ("In Fn Ew" );
 		fn_T ();
 		if (nextToken.equalsIgnoreCase ("where")) {
 			readToken ("where");		
@@ -222,24 +236,25 @@ public class Parser {
 
 
 	private void fn_Dr() throws Exception {
-		
+		System.out.println ("In Fn Dr" );
 		if (nextToken.equalsIgnoreCase ("rec")) {
 				readToken ("rec");
+				Build_tree("rec", 1);
 		}
-		Build_tree("rec", 1);
+		
 		fn_Db();
 		
 	}
 
 
 	private void fn_Db() throws Exception {
-        
+		System.out.println ("In Fn Db" );
 		if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("(")) {
 			try {
 				readToken ("(");
 				fn_D ();
 				readToken (")");
-				readToken (";");
+			//	readToken (";");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -250,12 +265,8 @@ public class Parser {
         	do {
 				fn_Vb();
 				n++;
-				} while (lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
-        	try {
-				readToken ("=");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+				} while ( (!nextToken.equals("=")) || lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
+   			readToken ("=");
 			fn_E ();
 			Build_tree("fcn_form", n+1);
         }
@@ -263,6 +274,7 @@ public class Parser {
 
 
 	private void fn_T() throws Exception {
+		System.out.println ("In Fn T" );
 		fn_Ta ();
 		if (lexer.getTypeOfToken(nextToken).equals ("(")) {		
 				int n = 0;
@@ -275,28 +287,30 @@ public class Parser {
 			} while (lexer.getTypeOfToken(nextToken).equals ("(") );
 			Build_tree("tau", n);
 		}
-		else 
-			readToken (";");
+	//	else 
+		//	readToken (";");
 	}
 
 
 	private void fn_Ta() throws Exception {
+		System.out.println ("In Fn Ta" );
 		fn_Tc ();
 		
-		if (nextToken.equalsIgnoreCase (";")) {
-			readToken (";");
-		}
-		else {
+	//	if (nextToken.equalsIgnoreCase (";")) {
+	//		readToken (";");
+	//	}
+		if (nextToken.equalsIgnoreCase ("aug")) {
 		    while (nextToken.equalsIgnoreCase ("aug")) {
 			    readToken ("aug");
 			    fn_Tc();
 			    Build_tree ("aug", 2);
-		    }  
+		    }
 		}
 	}
 
 
 	private void fn_Tc() throws Exception {
+		System.out.println ("In Fn Tc" );
 		fn_B ();
 		if (nextToken.equalsIgnoreCase("->")) {		
 			readToken ("->");
@@ -305,12 +319,13 @@ public class Parser {
 		    fn_Tc();
 		    Build_tree ("->", 3);
 		}
-		else 
-			readToken (";");
+	//	else 
+		//	readToken (";");
  	}
 
 
 	private void fn_B() throws Exception {
+		System.out.println ("In Fn B" );
         fn_Bt ();
         if (nextToken.equalsIgnoreCase("or")) {
         	while(nextToken.equalsIgnoreCase("or")) {
@@ -319,12 +334,13 @@ public class Parser {
         	    Build_tree ("or", 2);
         	}
         }
-        else
-        	readToken (";");
+    //    else
+      //  	readToken (";");
 	}
 
 
 	private void fn_Bt() throws Exception {
+		System.out.println ("In Fn Bt" );
 	        fn_Bs ();
 	        if (nextToken.equalsIgnoreCase("&")) {
 	        	while(nextToken.equalsIgnoreCase("&")) {
@@ -333,12 +349,13 @@ public class Parser {
 	        	    Build_tree ("&", 2);
 	        	}
 	        }
-	        else
-	        	readToken (";");       
+	    //    else
+	      //  	readToken (";");       
 	}
 
 
 	private void fn_Bs() throws Exception {
+		System.out.println ("In Fn Bs" );
 		if (nextToken.equalsIgnoreCase("not")) {
 			readToken ("not");
 			fn_Bp ();
@@ -346,12 +363,13 @@ public class Parser {
 		}
 		else {
 			fn_Bp();
-			readToken (";");    
+		//	readToken (";");    
 		}
 		}
 
 
 	private void fn_Bp() throws Exception {
+		System.out.println ("In Fn Bp" );
 		
 		fn_A ();
 		if (nextToken.equalsIgnoreCase("eq")) {
@@ -393,6 +411,7 @@ public class Parser {
 
 
 	private void fn_A() throws Exception {
+		System.out.println ("In Fn A" );
 		if (nextToken.equalsIgnoreCase("+")) {
 			readToken ("+");
 			fn_At ();
@@ -404,7 +423,7 @@ public class Parser {
 		}
 		else {
 		    fn_At ();
-		    readToken (";");
+		   // readToken (";");
 		}
 		while (nextToken.equalsIgnoreCase("+") || nextToken.equalsIgnoreCase("-")  ) {
 			if (nextToken.equalsIgnoreCase("+")) {
@@ -426,6 +445,7 @@ public class Parser {
 
 
 	private void fn_At() throws Exception {
+		System.out.println ("In Fn At" );
 		fn_Af();
 		while (nextToken.equalsIgnoreCase("*") || nextToken.equalsIgnoreCase("/")  ) {
 			if (nextToken.equalsIgnoreCase("*")) {
@@ -440,21 +460,23 @@ public class Parser {
 			}
 		//	nextToken = getNextToken();
 		}
-		readToken (";");
+		//readToken (";");
 		
 	}
 
 	private void fn_Af() throws Exception {
+		System.out.println ("In Fn Af" );
 		fn_Ap();
 		if (nextToken.equalsIgnoreCase("**")) {
 			readToken ("**");
 			fn_Af();
 			Build_tree ("**", 2);
 		}
-		readToken (";");
+	//	readToken (";");
 	}
 
 	private void fn_Ap() throws Exception {
+		System.out.println ("In Fn Ap" );
 	    fn_R();
 	    if (nextToken.equalsIgnoreCase("**")) {
 	        while (nextToken.equalsIgnoreCase("@")) {
@@ -464,14 +486,23 @@ public class Parser {
 	    	    Build_tree ("@", 3);
 	        }
 	    }
-	    readToken (";");	
+	//    readToken (";");	
 	}
 
 	private void fn_R() throws Exception {
+		System.out.println ("In Fn R" );
 		fn_Rn ();
 		int n=0;
-		while (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
-			readToken (nextToken);
+		/*while (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") 
+				|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("String") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
+		       || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("nil") || 
+		       lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy"))  */
+		while ( !(isReserved(nextToken) || lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Arrow")) || lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") 
+				|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("String") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
+		       || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("nil") || 
+		       lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy"))
+		       {
+			//readToken (nextToken);
             fn_Rn ();	
             n++;
    		}
@@ -479,10 +510,8 @@ public class Parser {
 	}
 
 	private void fn_Rn() throws Exception {
-		/*if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier") 
-				|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") 
-				|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase("String")) */
-					readToken (nextToken);        // should be Id or Int or String at this point..
+		System.out.println ("In Fn Rn" );
+
 	    if (nextToken.equalsIgnoreCase("True")) {
 			readToken ("True");
 			Build_tree ("True", 1);
@@ -497,19 +526,24 @@ public class Parser {
 		}
 		else if (nextToken.equalsIgnoreCase("(")) {
 			readToken ("(");
-			fn_E();
+			fn_E();		
 			readToken (")");
+			System.out.println ("came here " + nextToken );
 		}
-		else {
+		else if (nextToken.equalsIgnoreCase("dummy")){
 			readToken ("dummy");
 			Build_tree ("dummy",1);
 		}
-		
+		else {
+			//System.out.println ("About to read in Rn " + nextToken );
+			readToken (nextToken); 
+		}
 	}
 
 
 
 	private void fn_Vb() throws Exception {
+		System.out.println ("In Fn vb" );
 		/*if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
 			readToken (nextToken);
 		}*/
@@ -533,6 +567,7 @@ public class Parser {
 
 
 	private void fn_V1() throws Exception {
+		System.out.println ("In Fn V1" );
 		int n=0;
 		while (lexer.getTypeOfToken(nextToken).equals("Identifier")) {
 			readToken (nextToken);
@@ -541,15 +576,45 @@ public class Parser {
 		Build_tree (",",n);
 	}
 
-	private void fn_D() {
-		
+	private void fn_D() throws Exception {
+		System.out.println ("In Fn D" );
+		fn_Da();
+		if (nextToken.equalsIgnoreCase("within")) {
+			readToken ("within");
+			fn_D();
+			Build_tree ("within", 2);
+		}
+	//	else 
+			//readToken (";");
 		
 	}
 	
+	private void fn_Da() throws Exception {
+		System.out.println ("In Fn Da" );
+		fn_Dr ();
+		if (nextToken.equalsIgnoreCase("and")) {
+			int n=0;
+			while ( nextToken.equalsIgnoreCase ("and")) {
+				readToken ("and");
+				fn_Dr ();
+				n++;
+			}
+			Build_tree ("and", n);
+		}
+		//else {
+			//readToken (";");
+		//}
+	}
+
 	public static void main (String args[]) {
-		Parser p = new Parser ();
-		p.testBuild_tree();
-		
+		Parser p = new Parser (args[0]);
+		//p.testBuild_tree();
+		try {
+		    p.fn_E();
+		} catch (Exception e) {
+			System.out.println (e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
      
