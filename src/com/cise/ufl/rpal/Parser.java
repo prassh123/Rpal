@@ -181,13 +181,13 @@ public class Parser {
 	}
 	
 	private boolean isReserved (String token) {
-		System.out.println ("Check for " + token);
+		//System.out.println ("Check for " + token);
 		if (reservedTokens.contains(token)) {
 			System.out.println ("Came here true " + token);
 			return true;
 		}
 		else {
-			System.out.println ("Came here false" + token);
+			//System.out.println ("Came here false" + token);
 			return false;
 		}
 	}
@@ -206,7 +206,7 @@ public class Parser {
 				readToken("in");
 				fn_E ();
 				Build_tree("let", 2);
-				
+			//	preOrderTraversal()
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -265,20 +265,22 @@ public class Parser {
 				readToken (")");
 		
 		
-		}		
+		}	
+		
 		else if ( lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
         	int n = 0;
         	do {
 				fn_Vb();
 				n++;
-				} while ( (!nextToken.equals("=")) && lexer.getTypeOfToken(nextToken).equals ("Identifier") && !lexer.getTypeOfToken(nextToken).equals ("(") );
+				} while ( (!nextToken.equals("=")) && lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
    			readToken ("=");
 			fn_E ();
 			System.out.println ("Building fcn_form with " + (n+1));
 			Build_tree("fcn_form", (n+1));
         }
 		else {
-		    readToken (nextToken);
+		    //readToken (nextToken);
+			fn_V1();
 		    readToken ("=");
 		    fn_E ();
 		    Build_tree("=", 2);
@@ -540,7 +542,7 @@ public class Parser {
 			readToken ("(");
 			fn_E();		
 			readToken (")");
-			System.out.println ("came here " + nextToken );
+			//System.out.println ("came here " + nextToken );
 		}
 		else if (nextToken.equalsIgnoreCase("dummy")){
 			readToken ("dummy");
@@ -582,7 +584,11 @@ public class Parser {
 	private void fn_V1() throws Exception {
 		System.out.println ("In Fn V1" );
 		int n=0;
-		while (lexer.getTypeOfToken(nextToken).equals("Identifier")) {
+		if (lexer.getTypeOfToken(nextToken).equals("Identifier")) {
+			readToken (nextToken);
+		}
+		while (lexer.getTypeOfToken(nextToken).equals("Identifier") || nextToken.equals(",")) {
+			readToken (",");
 			readToken (nextToken);
 			n++;
 		}
