@@ -43,7 +43,7 @@ public class Parser {
     private static int index = -1;
     Stack stack = new Stack ();
     ArrayList tokenList;
-    static String [] reserved = {"let", "in", "fn", "where", "aug", "within", "and"};
+    static String [] reserved = {"let", "in", "fn", "where", "aug", "within", "and", "eq"};
     static ArrayList reservedTokens = new ArrayList ();
     static {
     	for (String s: reserved ) {
@@ -173,14 +173,23 @@ public class Parser {
 	 */
 	private String getNextToken() {
 		index++;
+		if (index == tokenList.size())  {
+			System.out.println ("*******PARSING COMPLETE*****");
+			System.exit(0);
+		}
 		return (String) tokenList.get(index);
 	}
 	
 	private boolean isReserved (String token) {
-		if (reservedTokens.contains(token)) 
+		System.out.println ("Check for " + token);
+		if (reservedTokens.contains(token)) {
+			System.out.println ("Came here true " + token);
 			return true;
-		else 
+		}
+		else {
+			System.out.println ("Came here false" + token);
 			return false;
+		}
 	}
 	
 	/************************************************************
@@ -250,26 +259,30 @@ public class Parser {
 	private void fn_Db() throws Exception {
 		System.out.println ("In Fn Db" );
 		if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("(")) {
-			try {
+			
 				readToken ("(");
 				fn_D ();
 				readToken (")");
-			//	readToken (";");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 		
+		
+		}		
 		else if ( lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
         	int n = 0;
         	do {
 				fn_Vb();
 				n++;
-				} while ( (!nextToken.equals("=")) || lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
+				} while ( (!nextToken.equals("=")) && lexer.getTypeOfToken(nextToken).equals ("Identifier") && !lexer.getTypeOfToken(nextToken).equals ("(") );
    			readToken ("=");
 			fn_E ();
-			Build_tree("fcn_form", n+1);
+			System.out.println ("Building fcn_form with " + (n+1));
+			Build_tree("fcn_form", (n+1));
         }
+		else {
+		    readToken (nextToken);
+		    readToken ("=");
+		    fn_E ();
+		    Build_tree("=", 2);
+   		}
    	}
 
 
@@ -490,22 +503,21 @@ public class Parser {
 	}
 
 	private void fn_R() throws Exception {
-		System.out.println ("In Fn R" );
-		fn_Rn ();
+		
+		//fn_Rn ();
 		int n=0;
-		/*while (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") 
-				|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("String") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
+
+		while ( (!isReserved(nextToken) && !lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Arrow") && !nextToken.equals("|")) && ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase("Operator_symbol")
+				&& ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase(")"))
+		/*		(lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") ||
+			 lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("String") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
 		       || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("nil") || 
-		       lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy"))  */
-		while ( !(isReserved(nextToken) || lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Arrow")) || lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") 
-				|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("String") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
-		       || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("nil") || 
-		       lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy"))
-		       {
-			//readToken (nextToken);
-            fn_Rn ();	
+		       lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy")))*/
+		    {
+			System.out.println ("In Fn R "+  nextToken);
+			fn_Rn ();	
             n++;
-   		}
+   		    }
 		Build_tree ("gamma", n);
 	}
 
@@ -535,6 +547,7 @@ public class Parser {
 			Build_tree ("dummy",1);
 		}
 		else {
+		//	return;
 			//System.out.println ("About to read in Rn " + nextToken );
 			readToken (nextToken); 
 		}
