@@ -76,7 +76,7 @@ public class Parser {
      */
     public void readToken (String token) throws Exception {
     	System.out.println ("READING Current TOKEN: " + token + " Next Token: " + nextToken);
-    	if ( ! token.equals (nextToken)) {
+    	if ( ! token.equalsIgnoreCase (nextToken)) {
     		throw new Exception ("Error: Expected "+ token + " but found: "+ nextToken);
     	}
     	String type = lexer.getTypeOfToken(token);
@@ -509,7 +509,7 @@ public class Parser {
 	private void fn_Ap() throws Exception {
 		System.out.println ("In Fn Ap" );
 	    fn_R();
-	    if (nextToken.equalsIgnoreCase("**")) {
+	    if (nextToken.equalsIgnoreCase("@")) {
 	        while (nextToken.equalsIgnoreCase("@")) {
 	    	    readToken ("@");
 	    	    readToken (nextToken);
@@ -560,11 +560,12 @@ public class Parser {
 		fn_Rn ();
 		while ( (!isReserved(nextToken) && !lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Arrow") 
 				&& !nextToken.equals("|")) && !lexer.getTypeOfToken (nextToken).equalsIgnoreCase("Operator_symbol")
-				&& ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase(")") && ! nextToken.equals(",") &&
+				&& ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase(")") && !nextToken.equals(",") &&
 				(lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") ||
 			     lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("Identifier") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
 		           || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("nil") || 
-		              lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy")))
+		              lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy")) ||
+		              lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("String") )
 		    {
 			
 			
@@ -613,7 +614,7 @@ public class Parser {
 			//System.out.println ("About to read in Rn " + nextToken );
 			// Build_tree ("Gamma",2);
 			//nextToken =  getNextToken();
-			if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer")) {
+			if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase("String")|| lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer")) {
 				readToken (nextToken); 
 			}
 		}
