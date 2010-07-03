@@ -81,6 +81,7 @@ public class Parser {
     	}
     	String type = lexer.getTypeOfToken(token);
     	if (type.equalsIgnoreCase("Identifier") ||  type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("String")) {
+    		System.out.println ("Building " + token + " with 0 children");
     		Build_tree (token, 0);
     	}
     	nextToken = getNextToken ();
@@ -102,18 +103,7 @@ public class Parser {
 		}
 		else {   // We will pop 'i' trees from the stack, connect it to-gether like a first child next sibling and then push the resulting one to the stack again...
 			for (int i=0; i<n ; i++) {
-				//lastNode = (TreeNode) stack.pop();
-				//System.out.println (lastNode.getTokenValue());
-				//lastButOneNode = (TreeNode) stack.pop();
-				//System.out.println (lastButOneNode.getTokenValue());
-				//lastButOneNode.setRightChild(lastNode);
-				//lastNode.setRightChild(treeNode);
-				//stack.push(lastButOneNode);
-				//stack.push(lastNode);
-				
 				treeNodesList .add((TreeNode) stack.pop());
-				
-				
 			}
 			Collections.reverse(treeNodesList);
 			//System.out.println (treeNodesList);
@@ -144,16 +134,6 @@ public class Parser {
 		TreeNode root = (TreeNode) stack.pop();
 		TreeNode temp = root;
 		preOrder (root);
-		//preOrder (root.getRightChild());
-		
-		/*while ( temp.getLeftChild() != null) {
-			System.out.println ("Left Value: " + temp.getTokenValue());
-			temp = temp.getLeftChild();
-		}*/
-		// Reset temp to root
-		
-		
-		
 	}
 	
 	private void preOrder (TreeNode t) {
@@ -175,6 +155,9 @@ public class Parser {
 		index++;
 		if (index == tokenList.size())  {
 			System.out.println ("*******PARSING COMPLETE*****");
+			System.out.println ("-------TREE VALUES----------");
+			preOrderTraversal ();
+			
 			System.exit(0);
 		}
 		return (String) tokenList.get(index);
@@ -183,7 +166,7 @@ public class Parser {
 	private boolean isReserved (String token) {
 		//System.out.println ("Check for " + token);
 		if (reservedTokens.contains(token)) {
-			System.out.println ("Came here true " + token);
+			//System.out.println ("Came here true " + token);
 			return true;
 		}
 		else {
@@ -205,8 +188,9 @@ public class Parser {
 				fn_D ();
 				readToken("in");
 				fn_E ();
+				System.out.println ("Building tree with Let node and 2 children");
 				Build_tree("let", 2);
-			//	preOrderTraversal()
+			
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -221,7 +205,9 @@ public class Parser {
 					} while (lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
 				readToken (".");
 				fn_E ();
+				System.out.println ("Building tree with Lambda and "+n+1+" children");
 				Build_tree ("lambda", n+1);
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -239,6 +225,7 @@ public class Parser {
 			readToken ("where");		
 			fn_Dr();
 			Build_tree("where", 2);
+			System.out.println ("Building tree with Where node and 2 children");
 		}
 		
 	}
@@ -248,10 +235,13 @@ public class Parser {
 		System.out.println ("In Fn Dr" );
 		if (nextToken.equalsIgnoreCase ("rec")) {
 				readToken ("rec");
+				fn_Db();
 				Build_tree("rec", 1);
+				System.out.println ("Building tree with rec node and 1 children");
 		}
-		
-		fn_Db();
+		else {
+		    fn_Db();
+		}
 		
 	}
 
@@ -277,12 +267,14 @@ public class Parser {
 			fn_E ();
 			System.out.println ("Building fcn_form with " + (n+1));
 			Build_tree("fcn_form", (n+1));
+			
         }
 		else {
 		    //readToken (nextToken);
 			fn_V1();
 		    readToken ("=");
 		    fn_E ();
+		    System.out.println ("Building tree with = node and 2 children");
 		    Build_tree("=", 2);
    		}
    	}
@@ -300,10 +292,9 @@ public class Parser {
 				readToken (")") ;
 				n++;
 			} while (lexer.getTypeOfToken(nextToken).equals ("(") );
+			System.out.println ("Building tree with Tau node and "+n+ " children");
 			Build_tree("tau", n);
 		}
-	//	else 
-		//	readToken (";");
 	}
 
 
@@ -311,14 +302,13 @@ public class Parser {
 		System.out.println ("In Fn Ta" );
 		fn_Tc ();
 		
-	//	if (nextToken.equalsIgnoreCase (";")) {
-	//		readToken (";");
-	//	}
 		if (nextToken.equalsIgnoreCase ("aug")) {
 		    while (nextToken.equalsIgnoreCase ("aug")) {
 			    readToken ("aug");
 			    fn_Tc();
+			    System.out.println ("Building tree with aug node and 2 children");
 			    Build_tree ("aug", 2);
+			    
 		    }
 		}
 	}
@@ -332,10 +322,9 @@ public class Parser {
 			fn_Tc();
 			readToken ("|");
 		    fn_Tc();
+		    System.out.println ("Building tree with -> node and 3 children");
 		    Build_tree ("->", 3);
 		}
-	//	else 
-		//	readToken (";");
  	}
 
 
@@ -346,11 +335,10 @@ public class Parser {
         	while(nextToken.equalsIgnoreCase("or")) {
         	    readToken ("or");
         	    fn_Bt ();
+        	    System.out.println ("Building tree with OR node and 2 children");
         	    Build_tree ("or", 2);
         	}
         }
-    //    else
-      //  	readToken (";");
 	}
 
 
@@ -361,11 +349,10 @@ public class Parser {
 	        	while(nextToken.equalsIgnoreCase("&")) {
 	        	    readToken ("&");
 	        	    fn_Bs ();
+	        	    System.out.println ("Building tree with & node and 2 children");
 	        	    Build_tree ("&", 2);
 	        	}
-	        }
-	    //    else
-	      //  	readToken (";");       
+	        } 
 	}
 
 
@@ -375,10 +362,10 @@ public class Parser {
 			readToken ("not");
 			fn_Bp ();
 			Build_tree ("not", 1);
+			System.out.println ("Building tree with NOT node and 1 children");
 		}
 		else {
 			fn_Bp();
-		//	readToken (";");    
 		}
 		}
 
@@ -391,11 +378,13 @@ public class Parser {
 			readToken ("eq");
 			fn_A ();
 			Build_tree ("eq", 2);
+			System.out.println ("Building tree with eq node and 2 children");
 		}
 		else if (nextToken.equalsIgnoreCase("ne")) {
 			readToken ("ne");
 			fn_A ();
-			Build_tree ("ne", 2);		
+			Build_tree ("ne", 2);	
+			System.out.println ("Building tree with NE node and 2 children");
 		}
 		
 		else  {
@@ -405,21 +394,25 @@ public class Parser {
 				 readToken (temp);
 				 fn_A ();
 				 Build_tree("gr", 2);
+				 System.out.println ("Building tree with GR node and 2 children");
 			}
 			else if (temp.equalsIgnoreCase("ge") || temp.equalsIgnoreCase(">=")) {
 				 readToken (temp);
 				 fn_A ();
 				 Build_tree("ge", 2);
+				 System.out.println ("Building tree with GE node and 2 children");
 			}
 			else if (temp.equalsIgnoreCase("ls") || temp.equalsIgnoreCase("<")) {
 				 readToken (temp);
 				 fn_A ();
 				 Build_tree("ls", 2);
+				 System.out.println ("Building tree with LS node and 2 children");
 			}
 			else if (temp.equalsIgnoreCase("le") || temp.equalsIgnoreCase(">")) {
 				 readToken (temp);
 				 fn_A ();
 				 Build_tree("le", 2);
+				 System.out.println ("Building tree with LE node and 2 children");
 			}
 		}
 	}
@@ -435,23 +428,24 @@ public class Parser {
 			readToken ("+");
 			fn_At ();
 			Build_tree ("neg", 1);
+			System.out.println ("Building tree with NEG node and 1 children");
 		}
 		else {
 		    fn_At ();
-		   // readToken (";");
 		}
 		while (nextToken.equalsIgnoreCase("+") || nextToken.equalsIgnoreCase("-")  ) {
 			if (nextToken.equalsIgnoreCase("+")) {
 				readToken ("+");
 				fn_At ();
 				Build_tree ("+", 2);
+				System.out.println ("Building tree with + node and 2 children");
 			}
 			else {
 				readToken ("-");
 				fn_At ();
 				Build_tree ("-", 2);
+				System.out.println ("Building tree with - node and 2 children");
 			}
-		 // nextToken = getNextToken(); I dont think this is necessary...
 		}
 	}
 
@@ -466,16 +460,18 @@ public class Parser {
 			if (nextToken.equalsIgnoreCase("*")) {
 				readToken ("*");
 				fn_Af();
+				System.out.println ("Building tree with * node and 2 children");
 				Build_tree ("*", 2);
 			}
 			else {
 				readToken ("/");
 				fn_Af ();
+				System.out.println ("Building tree with / node and 2 children");
 				Build_tree ("/", 2);
 			}
-		//	nextToken = getNextToken();
+	
 		}
-		//readToken (";");
+	
 		
 	}
 
@@ -485,9 +481,10 @@ public class Parser {
 		if (nextToken.equalsIgnoreCase("**")) {
 			readToken ("**");
 			fn_Af();
+			System.out.println ("Building tree with ** node and 2 children");
 			Build_tree ("**", 2);
 		}
-	//	readToken (";");
+	
 	}
 
 	private void fn_Ap() throws Exception {
@@ -498,17 +495,17 @@ public class Parser {
 	    	    readToken ("@");
 	    	    readToken (nextToken);
 	    	    fn_R();
+	    	    System.out.println ("Building tree with @ node and 3 children");
 	    	    Build_tree ("@", 3);
 	        }
 	    }
-	//    readToken (";");	
 	}
 
 	private void fn_R() throws Exception {
 		
 		//fn_Rn ();
 		int n=0;
-
+        
 		while ( (!isReserved(nextToken) && !lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Arrow") && !nextToken.equals("|")) && ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase("Operator_symbol")
 				&& ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase(")"))
 		/*		(lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") ||
@@ -516,11 +513,19 @@ public class Parser {
 		       || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("nil") || 
 		       lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy")))*/
 		    {
-			System.out.println ("In Fn R "+  nextToken);
 			fn_Rn ();	
-            n++;
+			n++;
+			System.out.println ("In Fn R "+  nextToken );
+			if (n>1)  {  // sort of a hack
+				System.out.println ("Building tree with Gamma node and 2 children");
+				Build_tree ("gamma", 2);
+			}
+			
+			
+            
    		    }
-		Build_tree ("gamma", n);
+		//System.out.println ("Building tree with Gamma node and " + n + " children");
+		//Build_tree ("gamma", n);
 	}
 
 	private void fn_Rn() throws Exception {
@@ -529,29 +534,35 @@ public class Parser {
 	    if (nextToken.equalsIgnoreCase("True")) {
 			readToken ("True");
 			Build_tree ("True", 1);
+			System.out.println ("Building tree with TRUE node and 1 children");
 		}
 		else if (nextToken.equalsIgnoreCase("False")) {
 			readToken ("False");
 			Build_tree ("False", 1);
+			System.out.println ("Building tree with FALSE node and 1 children");
 		}
 		else if (nextToken.equalsIgnoreCase("nil")) {
 			readToken ("nil");
 			Build_tree ("nil", 1);
+			System.out.println ("Building tree with NIL node and 1 children");
 		}
 		else if (nextToken.equalsIgnoreCase("(")) {
 			readToken ("(");
 			fn_E();		
 			readToken (")");
-			//System.out.println ("came here " + nextToken );
 		}
 		else if (nextToken.equalsIgnoreCase("dummy")){
 			readToken ("dummy");
 			Build_tree ("dummy",1);
+			System.out.println ("Building tree with Dummy node and 1 children");
 		}
 		else {
 		//	return;
 			//System.out.println ("About to read in Rn " + nextToken );
-			readToken (nextToken); 
+			// Build_tree ("Gamma",2);
+			//nextToken =  getNextToken();
+			
+				readToken (nextToken); 
 		}
 	}
 
@@ -567,6 +578,7 @@ public class Parser {
 				readToken ("(");
 				if (nextToken.equalsIgnoreCase(")")) {
 					Build_tree ("()", 2);
+					System.out.println ("Building tree with () node and 2 children");
 				}
 				else {
 					fn_V1 ();
@@ -593,6 +605,7 @@ public class Parser {
 			n++;
 		}
 		Build_tree (",",n);
+		System.out.println ("Building tree with , node and " + n + " children");
 	}
 
 	private void fn_D() throws Exception {
@@ -602,10 +615,9 @@ public class Parser {
 			readToken ("within");
 			fn_D();
 			Build_tree ("within", 2);
+			System.out.println ("Building tree with Within node and 2 children");
 		}
-	//	else 
-			//readToken (";");
-		
+	
 	}
 	
 	private void fn_Da() throws Exception {
@@ -619,10 +631,8 @@ public class Parser {
 				n++;
 			}
 			Build_tree ("and", n);
+			System.out.println ("Building tree with AND node and " + n + " children");
 		}
-		//else {
-			//readToken (";");
-		//}
 	}
 
 	public static void main (String args[]) {
