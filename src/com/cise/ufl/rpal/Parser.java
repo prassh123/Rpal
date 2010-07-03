@@ -109,6 +109,8 @@ public class Parser {
 				treeNodesList .add((TreeNode) stack.pop());
 			}
 			Collections.reverse(treeNodesList);
+		
+				
 			//System.out.println (treeNodesList);
 			for (int i=0; i<treeNodesList.size()-1; i++) {
 				//   TreeNode temp = treeNodesList.get(i);
@@ -122,6 +124,8 @@ public class Parser {
 			
 			
 			stack.push(treeNode);
+			
+			
 		}
 		
 	}
@@ -265,6 +269,7 @@ public class Parser {
 
 	private void fn_Db() throws Exception {
 		System.out.println ("In Fn Db" );
+		
 		if (lexer.getTypeOfToken(nextToken).equalsIgnoreCase("(")) {
 			
 				readToken ("(");
@@ -274,26 +279,38 @@ public class Parser {
 		
 		}	
 		
-		else if ( lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
-        	int n = 0;
+		else { 
+			if ( lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Identifier")) {
+        	int n = 1;
+        	fn_V1();
+        	if (nextToken.equals ("=")) {
+        		readToken ("=");
+        		fn_E ();
+        		System.out.println ("Building tree with = node and 2 children");
+        		 Build_tree("=", 2);
+        	}
+        	else {
+        	
         	do {
 				fn_Vb();
 				n++;
+				System.out.println ("N Value " + n);
 				} while ( (!nextToken.equals("=")) && lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
    			readToken ("=");
 			fn_E ();
 			System.out.println ("Building fcn_form with " + (n+1));
 			Build_tree("fcn_form", (n+1));
-			
+        	}
         }
-		else {
+	}
+	/*	else {
 		    //readToken (nextToken);
 			fn_V1();
 		    readToken ("=");
 		    fn_E ();
 		    System.out.println ("Building tree with = node and 2 children");
 		    Build_tree("=", 2);
-   		}
+   		}*/
    	}
 
 
@@ -653,13 +670,16 @@ public class Parser {
 		if (lexer.getTypeOfToken(nextToken).equals("Identifier")) {
 			readToken (nextToken);
 		}
-		while (lexer.getTypeOfToken(nextToken).equals("Identifier") || nextToken.equals(",")) {
-			readToken (",");
-			readToken (nextToken);
-			n++;
-		}
-		Build_tree (",",n+1);
-		System.out.println ("Building tree with , node and " + n + " children");
+		//while (lexer.getTypeOfToken(nextToken).equals("Identifier") || nextToken.equals(",")) {
+		if (nextToken.equals(",")) {
+		    while (nextToken.equals(",")) {
+		        readToken (",");
+			    readToken (nextToken);
+			    n++;
+		    }
+		    Build_tree (",",n+1);
+		    System.out.println ("Building tree with , node and " + (n+1) + " children");
+	    }
 	}
 
 	private void fn_D() throws Exception {
@@ -684,8 +704,8 @@ public class Parser {
 				fn_Dr ();
 				n++;
 			}
-			Build_tree ("and", n);
-			System.out.println ("Building tree with AND node and " + n + " children");
+			Build_tree ("and", n+1);
+			System.out.println ("Building tree with AND node and " + (n+1) + " children");
 		}
 	}
 
