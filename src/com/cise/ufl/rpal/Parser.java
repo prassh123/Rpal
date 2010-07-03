@@ -150,8 +150,9 @@ public class Parser {
 		if  (t.getLeftChild() != null ) {
 		    preOrder (t.getLeftChild());
 		}
-		else if (t.getRightChild() != null)
+	    if (t.getRightChild() != null) {
 		    preOrder (t.getRightChild());
+	    }
 	}
 	
 
