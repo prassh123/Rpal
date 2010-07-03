@@ -81,7 +81,8 @@ public class Parser {
     	}
     	String type = lexer.getTypeOfToken(token);
     	if ((type.equalsIgnoreCase("Identifier") ||  type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("String")) && !token.equals("in") &&!token.equals("eq")
-    	&& !token.equals("rec") && !token.equals ("where") && !token.equals ("let") && !token.equals("within") &&!token.equals("and") &&!token.equals("fn") &&!token.equals (","))
+    	&& !token.equals("rec") && !token.equals ("where") && !token.equals ("let") && !token.equals("within") &&!token.equals("and") &&!token.equals("fn") &&!token.equals (",")
+    		&&!token.equals ("."))
     	{
     		System.out.println ("Building " + token + " with 0 children");
     		Build_tree (token, 0);
@@ -201,13 +202,12 @@ public class Parser {
 				fn_E ();
 				System.out.println ("Building tree with Let node and 2 children");
 				Build_tree("let", 2);
-			
-				System.out.println ("*******PARSING COMPLETE*****");
-				System.out.println ("-------TREE VALUES----------");
-				preOrderTraversal ();
-				
-				System.exit(0);
-		
+		/*		if (nextToken.equalsIgnoreCase("PARSE_COMPLETE")) {
+					System.out.println ("*******PARSING COMPLETE*****");
+					System.out.println ("-------TREE VALUES----------");
+					preOrderTraversal ();
+					System.exit(0);
+				}*/
 		}
 		else if (nextToken.equalsIgnoreCase("fn")) {
 		
@@ -219,12 +219,19 @@ public class Parser {
 					} while (lexer.getTypeOfToken(nextToken).equals ("Identifier") || lexer.getTypeOfToken(nextToken).equals ("(") );
 				readToken (".");
 				fn_E ();
-				System.out.println ("Building tree with Lambda and "+n+1+" children");
+				System.out.println ("Building tree with Lambda and "+(n+1)+" children");
 				Build_tree ("lambda", n+1);
+		/*		if (nextToken.equalsIgnoreCase("PARSE_COMPLETE")) {
+					System.out.println ("*******PARSING COMPLETE*****");
+					System.out.println ("-------TREE VALUES----------");
+					preOrderTraversal ();
+					System.exit(0);
+				}*/
 				
-		}
-		else 
+			}
+		else {
 			fn_Ew ();
+		    }
 	}
 
 
@@ -594,6 +601,7 @@ public class Parser {
 			readToken ("(");
 			fn_E();		
 			readToken (")");
+			System.out.println("Back to R with token "+ nextToken );
 		}
 		else if (nextToken.equalsIgnoreCase("dummy")){
 			readToken ("dummy");
@@ -685,6 +693,12 @@ public class Parser {
 		//p.testBuild_tree();
 		try {
 		    p.fn_E();
+		    if (nextToken.equalsIgnoreCase("PARSE_COMPLETE")) {
+				System.out.println ("*******PARSING COMPLETE*****");
+				System.out.println ("-------TREE VALUES----------");
+				p.preOrderTraversal ();
+				System.exit(0);
+			}
 		} catch (Exception e) {
 			System.out.println (e.getMessage());
 			e.printStackTrace();
