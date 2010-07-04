@@ -44,8 +44,17 @@ class Lexer<E> {
                 int temp2 = contents.indexOf(")");        
                 while (temp2 > 0) {
                  contents.insert(temp2, " ");   // inserting a space in case of Commas
-                 temp2 = contents.indexOf(")", temp2+2);
+                 contents.insert(temp2-2, " ");
+                 temp2 = contents.indexOf(")", temp2+4);
                 }
+                
+                temp2 = contents.indexOf("(");        
+                while (temp2 > 0) {
+                 contents.insert(temp2, " ");   // inserting a space in case of Commas
+                 contents.insert(temp2+2, " ");
+                 temp2 = contents.indexOf("(", temp2+4);
+                }
+                
                 //System.out.println (contents);
                 logger.info ("File Contents: " + contents);
         }
