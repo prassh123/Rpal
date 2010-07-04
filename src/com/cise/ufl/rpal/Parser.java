@@ -82,7 +82,8 @@ public class Parser {
     	String type = lexer.getTypeOfToken(token);
     	if ((type.equalsIgnoreCase("Identifier") ||  type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("String")) && !token.equals("in") &&!token.equals("eq")
     	&& !token.equals("rec") && !token.equals ("where") && !token.equals ("let") && !token.equals("within") &&!token.equals("and") &&!token.equals("fn") &&!token.equals (",")
-    		&&!token.equals (".") && !token.equals ("le") && !token.equals ("gr") && !token.equals ("ge") && !token.equals ("ls") && !token.equals("or") && !token.equals("not"))
+    		&&!token.equals (".") && !token.equals ("le") && !token.equals ("gr") && !token.equals ("ge") && !token.equals ("ls") && !token.equals("or") && !token.equals("not")
+    		&& !token.equals("aug"))
     	{
     		System.out.println ("Building " + token + " with 0 children");
     		Build_tree (token, 0);
@@ -576,7 +577,7 @@ public class Parser {
 		while ( (!isReserved(nextToken) && !lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Arrow") 
 				&& !nextToken.equals("|") && !lexer.getTypeOfToken (nextToken).equalsIgnoreCase("Operator_symbol") 
 				&& !nextToken.equals("gr") && !nextToken.equals("ge") && !nextToken.equals("ls") && !nextToken.equals("le") && !nextToken.equals("or") 
-				&& ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase(")") && !nextToken.equals(",")) &&
+				&& ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase(")") && !nextToken.equals(",") && !nextToken.equals("aug"))  &&
 				(lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") ||
 			     lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("Identifier") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
 		           || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("nil") || 
