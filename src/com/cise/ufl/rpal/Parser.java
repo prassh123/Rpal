@@ -82,7 +82,7 @@ public class Parser {
     	String type = lexer.getTypeOfToken(token);
     	if ((type.equalsIgnoreCase("Identifier") ||  type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("String")) && !token.equals("in") &&!token.equals("eq")
     	&& !token.equals("rec") && !token.equals ("where") && !token.equals ("let") && !token.equals("within") &&!token.equals("and") &&!token.equals("fn") &&!token.equals (",")
-    		&&!token.equals (".") && !token.equals ("le") && !token.equals ("gr") && !token.equals ("ge") && !token.equals ("ls") && !token.equals("or"))
+    		&&!token.equals (".") && !token.equals ("le") && !token.equals ("gr") && !token.equals ("ge") && !token.equals ("ls") && !token.equals("or") && !token.equals("not"))
     	{
     		System.out.println ("Building " + token + " with 0 children");
     		Build_tree (token, 0);
@@ -109,8 +109,8 @@ public class Parser {
 				treeNodesList .add((TreeNode) stack.pop());
 			}
 			Collections.reverse(treeNodesList);
-		
-				
+		  
+					
 			//System.out.println (treeNodesList);
 			for (int i=0; i<treeNodesList.size()-1; i++) {
 				//   TreeNode temp = treeNodesList.get(i);
