@@ -7,6 +7,7 @@ import java.util.Stack;
 
 class TreeNode {
 	String token;
+	
 	private  TreeNode leftChild = null;
 	private TreeNode rightChild = null;
 	
@@ -41,10 +42,19 @@ public class Parser {
    // HashMap lexTable;
     private static String nextToken;
     private static int index = -1;
+    
+    private static final String ID = "ID:";
+    private static final String STR = "STR:";
+    private static final String INT = "INT:";
+    
     Stack stack = new Stack ();
     ArrayList tokenList;
     static String [] reserved = {"let", "in", "fn", "where", "aug", "within", "and", "eq"};
     static ArrayList reservedTokens = new ArrayList ();
+    
+    private TreeNode rootTreeNode;
+    
+    
     static {
     	for (String s: reserved ) {
     		reservedTokens.add(s);
@@ -83,9 +93,24 @@ public class Parser {
     	if ((type.equalsIgnoreCase("Identifier") ||  type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("String")) && !token.equals("in") &&!token.equals("eq")
     	&& !token.equals("rec") && !token.equals ("where") && !token.equals ("let") && !token.equals("within") &&!token.equals("and") &&!token.equals("fn") &&!token.equals (",")
     		&&!token.equals (".") && !token.equals ("le") && !token.equals ("gr") && !token.equals ("ge") && !token.equals ("ls") && !token.equals("or") && !token.equals("not")
-    		&& !token.equals("aug"))
+    		&& !token.equals("aug") && !token.equals ("nil"))
     	{
     		System.out.println ("Building " + token + " with 0 children");
+    		if (token.equals ("nil")) {
+    			token = "nil";
+    		}
+    		else if (lexer.getTypeOfToken(token).equals("String")) {
+    			token = "<"+STR+token+">";
+    		}	
+    		else if (lexer.getTypeOfToken(token).equals("Integer")) {
+    			token = "<"+INT+token+">";
+    		}
+    		else if (lexer.getTypeOfToken(token).equals("Identifier")) {
+    			token = "<"+ID+token+">";
+    		}
+    		else {
+    			token = token;
+    		}
     		Build_tree (token, 0);
     	}
     	nextToken = getNextToken ();
@@ -143,24 +168,49 @@ public class Parser {
 	}
 	
 	private void preOrderTraversal () {
+		int depth =0 ;
+		int noLeft = 0;
+		
 		if (stack.empty()) {
 			System.out.println ("No trees in the stack!");
 		}
 		TreeNode root = (TreeNode) stack.pop();
 		TreeNode temp = root;
-		preOrder (root);
+		this.rootTreeNode = temp;
+		preOrder (root, depth);
 	}
 	
-	private void preOrder (TreeNode t) {
-		System.out.println ("Value: " + t.getTokenValue());
-		if  (t.getLeftChild() != null ) {
-		    preOrder (t.getLeftChild());
+	private void preOrder (TreeNode t, int depth) {
+		
+		String dot="";
+		for(int i=0;i<depth;i++)
+		{
+			dot=dot+".";
 		}
-	    if (t.getRightChild() != null) {
-		    preOrder (t.getRightChild());
+		System.out.println (dot + t.getTokenValue());
+		depth++;
+		if  (t.getLeftChild() != null ) {
+		    preOrder (t.getLeftChild(), depth);
+		}
+	    if (t.getRightChild() != null) {  
+		    preOrder (t.getRightChild(),depth-1);
 	    }
 	}
 	
+	/*private int height(TreeNode root)
+	{
+        int ldepth=0;
+        int rdepth=0;
+		if(root.getTokenValue() == this.rootTreeNode.getTokenValue())
+	        return 0;
+	    ldepth = height(root.getLeftChild()) + 1;
+	    rdepth = height(root.getRightChild()) + 1;
+
+	    if(ldepth > rdepth)
+	        return ldepth;
+	    else
+	        return rdepth;
+	}*/
 
 	/**
 	 * 
@@ -295,7 +345,7 @@ public class Parser {
    			readToken ("=");
 			fn_E ();
 			System.out.println ("Building fcn_form with " + (n+1));
-			Build_tree("fcn_form", (n+1));
+			Build_tree("function_form", (n+1));
         	}
         }
 	}
@@ -580,13 +630,14 @@ public class Parser {
 				&& ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase(")") && !nextToken.equals(",") && !nextToken.equals("aug"))  &&
 				(lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") ||
 			     lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("Identifier") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
-		           || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("nil") || 
+		           || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("false")  || 
 		              lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("(") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("dummy")) ||
 		              lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("String") )
 		    {
 			
 			
 			fn_Rn ();	
+		
 			System.out.println ("After Fn R "+  nextToken );
 			Build_tree ("gamma", 2);
 			if (nextToken.equalsIgnoreCase("PARSE_COMPLETE")) {
@@ -612,7 +663,7 @@ public class Parser {
 		}
 		else if (nextToken.equalsIgnoreCase("nil")) {
 			readToken ("nil");
-			Build_tree ("nil", 1);
+			Build_tree ("nil", 0);
 			System.out.println ("Building tree with NIL node and 1 children");
 		}
 		else if (nextToken.equalsIgnoreCase("(")) {
