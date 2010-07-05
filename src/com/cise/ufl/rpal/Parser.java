@@ -97,7 +97,7 @@ public class Parser {
     	{
     		System.out.println ("Building " + token + " with 0 children");
     		if (token.equals ("nil")) {
-    			token = "nil";
+    			token = "<nil>";
     		}
     		else if (lexer.getTypeOfToken(token).equals("String")) {
     			token = "<"+STR+token+">";
@@ -663,7 +663,7 @@ public class Parser {
 		}
 		else if (nextToken.equalsIgnoreCase("nil")) {
 			readToken ("nil");
-			Build_tree ("nil", 0);
+			Build_tree ("<nil>", 0);
 			System.out.println ("Building tree with NIL node and 1 children");
 		}
 		else if (nextToken.equalsIgnoreCase("(")) {
