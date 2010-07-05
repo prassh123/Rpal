@@ -93,13 +93,22 @@ public class Parser {
     	if ((type.equalsIgnoreCase("Identifier") ||  type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("String")) && !token.equals("in") &&!token.equals("eq")
     	&& !token.equals("rec") && !token.equals ("where") && !token.equals ("let") && !token.equals("within") &&!token.equals("and") &&!token.equals("fn") &&!token.equals (",")
     		&&!token.equals (".") && !token.equals ("le") && !token.equals ("gr") && !token.equals ("ge") && !token.equals ("ls") && !token.equals("or") && !token.equals("not")
-    		&& !token.equals("aug") && !token.equals ("nil")  && !token.equals ("ne") && !token.equalsIgnoreCase ("true") && !token.equalsIgnoreCase ("false"))
+    		&& !token.equals("aug") && !token.equals ("nil")  && !token.equals ("ne") && !token.equalsIgnoreCase ("true") && !token.equalsIgnoreCase ("false") && !token.equalsIgnoreCase ("dummy"))
     	{
     		System.out.println ("Building " + token + " with 0 children");
     		if (token.equals ("nil")) {
     			token = "<nil>";
     		}
     		else if (lexer.getTypeOfToken(token).equals("String")) {
+    			if (token.equals("' ) '")) {
+    				token = "')'";
+    			}
+    			if (token.equals("' ( '")) {
+    				token = "'('";
+    			}
+    			if (token.equals("' , '")) {
+    				token = "','";
+    			}
     			token = "<"+STR+token+">";
     		}	
     		else if (lexer.getTypeOfToken(token).equals("Integer")) {
@@ -675,7 +684,7 @@ public class Parser {
 		}
 		else if (nextToken.equalsIgnoreCase("dummy")){
 			readToken ("dummy");
-			Build_tree ("dummy",1);
+			Build_tree ("<dummy>",0);
 			System.out.println ("Building tree with Dummy node and 1 children");
 		}
 		else {
