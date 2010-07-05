@@ -26,6 +26,7 @@ class Lexer<E> {
                         BufferedReader br = new BufferedReader (new FileReader(fileName));
                         String line = null;
                         while (( line = br.readLine()) != null){
+                             line = line.replaceAll("\t", "");	
                                  contents.append(line);
                                  contents.append(" <eol> "); // the space in front of <eol> is crucial for the lexer
                         }
@@ -33,30 +34,37 @@ class Lexer<E> {
                         e.printStackTrace();
                     }
                
-              
+                    System.out.println (contents);
+                    
                 int temp = contents.indexOf(",");        
                  while (temp > 0) {
-                  contents.insert(temp, " ");   // inserting a space in case of Commas
-                  temp = contents.indexOf(",", temp+2);
+                     contents.insert(temp, " ");   // inserting a space in case of Commas
+                     contents.insert(temp+2, " "); 
+                   	 temp = contents.indexOf(",", temp+2);
                  }
-               // System.out.println (contents);
+               
                 
                 int temp2 = contents.indexOf(")");        
-                while (temp2 > 0) {
-                 contents.insert(temp2, " ");   // inserting a space in case of Commas
-                 contents.insert(temp2+2, " ");
-                 temp2 = contents.indexOf(")", temp2+4);
+             
+                while (temp2 > 0) {             
+                    contents.insert(temp2, " ");   // inserting a space in case of Commas
+                    contents.insert(temp2+2, " ");
+                    temp2 = contents.indexOf(")", temp2+4);  
                 }
+              
+                temp2 = contents.indexOf("(");  
+                System.out.println ("temp2 "+ temp2);
                 
-                temp2 = contents.indexOf("(");        
                 while (temp2 > 0) {
-                 contents.insert(temp2, " ");   // inserting a space in case of Commas
-                 contents.insert(temp2+2, " ");
+          
+                     contents.insert(temp2, " ");   // inserting a space in case of Commas
+                     contents.insert(temp2+2, " ");
+             
                  temp2 = contents.indexOf("(", temp2+4);
                 }
                 
-                //System.out.println (contents);
-                logger.info ("File Contents: " + contents);
+                System.out.println (contents);
+                //logger.info ("File Contents: " + contents);
         }
         
         public void constructTokens () {
@@ -77,25 +85,65 @@ class Lexer<E> {
         		if (! status) {
         			token =  (E) st.nextToken().trim();
         						// We only get the next token if the status is true. because we might have additional sequences of ((((( etc...
-        			 
-        			// System.out.println ("About to classify " + token );
+        			if (((String) token).startsWith ("'")) {
+        				if (token.equals("''")) {
+        					System.out.println ("Came here " + token);
+        					tokenList.add((E) token.toString());
+        					status = false;
+        					continue;
+        				}
+        		/*		else if (((String)token).charAt(0) == '\'' &&  ((String)token).length() == 1) {
+        					System.out.println ("Came here3 " + token);
+        					StringBuffer sb = new StringBuffer ();
+        					tokenList.add((E) token.toString());
+        					status = true;
+        					continue;
+        				}*/
+        				else {
+        					String temp = ((String) token);
+        					
+        					if (temp.charAt(0) == '\'' && temp.charAt(temp.length()-1) == '\'' && temp.length() > 1) {    // add the string as it is...> 1 check is reqd
+        						System.out.println ("Came here2 " + token);
+            					tokenList.add((E) temp);
+            					status = false;
+            					continue;
+        					}
+        				}
+        				StringBuffer buffer = new StringBuffer ();
+        				System.out.println ("TOKEN did COME HERE " + token);
+        				
+        				while (((String) token).endsWith("'") != true)  {
+        					System.out.println ("TOKEN SHD COME HERE " + token);
+        						buffer.append(token+" ");
+        					 token =  (E) st.nextToken();
+        				}
+        				 buffer.append(token); 
+        				 if (buffer.toString().indexOf ("<eol>") > 0) {
+        					 buffer = new StringBuffer (buffer.toString().replaceAll(" <eol> ", ""));
+        				 }
+        				 tokenList.add((E) buffer.toString());
+        				 status=false;
+        				 continue;
+        			}
+        			 System.out.println ("About to classify " + token );
         		}
-        		if (((String) token).startsWith ("'")) {
+       /* 		if (((String) token).startsWith ("'")) {
         			System.out.println("Token started with " +token );
         			StringBuffer buffer = new StringBuffer ();
         			while (((String) token).endsWith("'") != true)  {
-        				//System.out.println (token);
+        				//System.out.println ("Inside string " + token);
          			    buffer.append(token);
          			    token =  (E) st.nextToken();
         			}
-        		//	if (isString(buffer.toString())) 	{	// This is to detect strings in the input...Letz skip this for now because we are having issues with spaces...
-        			    buffer.append(token);  			// We add the remaining token before pushing it into the arraylist
-        			    tokenList.add((E) buffer.toString());
-        				System.out.println ("Adding token " + buffer.toString());
-        		//	}
+        	
+        			buffer.append(token);  			// We add the remaining token before pushing it into the arraylist
+        			tokenList.add((E) buffer.toString());
+        				
+        		
         		    status=false;
+        		    System.out.println ("ADDED STRING TOKEN "+ buffer.toString());
         		    continue;
-        		}
+        		}*/
         		if (token.equals("<eol>") || token.equals ("\t") || token.equals("\n")) {
         			status = false;
         			continue;
