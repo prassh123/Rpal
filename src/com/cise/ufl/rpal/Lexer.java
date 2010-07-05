@@ -44,7 +44,7 @@ class Lexer<E> {
                 int temp2 = contents.indexOf(")");        
                 while (temp2 > 0) {
                  contents.insert(temp2, " ");   // inserting a space in case of Commas
-                 contents.insert(temp2-2, " ");
+                 contents.insert(temp2+2, " ");
                  temp2 = contents.indexOf(")", temp2+4);
                 }
                 
@@ -78,12 +78,13 @@ class Lexer<E> {
         			token =  (E) st.nextToken().trim();
         						// We only get the next token if the status is true. because we might have additional sequences of ((((( etc...
         			 
-        			 //System.out.println ("About to classify " + token );
+        			// System.out.println ("About to classify " + token );
         		}
         		if (((String) token).startsWith ("'")) {
         			System.out.println("Token started with " +token );
         			StringBuffer buffer = new StringBuffer ();
         			while (((String) token).endsWith("'") != true)  {
+        				//System.out.println (token);
          			    buffer.append(token);
          			    token =  (E) st.nextToken();
         			}
@@ -385,7 +386,7 @@ class Lexer<E> {
                 Lexer lexer = new Lexer ();
                 lexer.readFile (args[0]);
                lexer.constructTokens();
-                ////System.out.println("The result  " + lexer.isIdentifier("'12'"));
+               System.out.println("The result  " + lexer.isIdentifier("Vec_sum"));
                 lexer.printLexTable();
         }
 }
