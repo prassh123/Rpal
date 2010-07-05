@@ -38,24 +38,31 @@ class Lexer<E> {
                     
                 int temp = contents.indexOf(",");        
                  while (temp > 0) {
+                
                      contents.insert(temp, " ");   // inserting a space in case of Commas
                      contents.insert(temp+2, " "); 
+                	 
                    	 temp = contents.indexOf(",", temp+2);
                  }
                
                 
                 int temp2 = contents.indexOf(")");        
-                while (temp2 > 0) {             
+                while (temp2 > 0) {    
+               
                     contents.insert(temp2, " ");   // inserting a space in case of Commas
                     contents.insert(temp2+2, " ");
+                
                     temp2 = contents.indexOf(")", temp2+4);  
                 }
               
                 temp2 = contents.indexOf("(");  
-                System.out.println ("temp2 "+ temp2);
+                
+                
                 while (temp2 > 0) {
+                	 
                      contents.insert(temp2, " ");   // inserting a space in case of Commas
                      contents.insert(temp2+2, " ");
+                	 
                      temp2 = contents.indexOf("(", temp2+4);
                 }
                 // temp fix for the single quote problem
@@ -109,11 +116,12 @@ class Lexer<E> {
         				}
         				StringBuffer buffer = new StringBuffer ();
         				System.out.println ("TOKEN did COME HERE " + token);
-        				
-        				while (((String) token).endsWith("'") != true)  {
-        					System.out.println ("TOKEN SHD COME HERE " + token);
+        				String tempToken = "";
+        				while (tempToken.endsWith("'") != true)  {
+        					System.out.println ("TOKEN SHD COME HERE " + tempToken);
         						buffer.append(token+" ");
-        					 token =  (E) st.nextToken();
+        					 tempToken =  (String) st.nextToken();
+        					 token = (E) tempToken;
         				}
         				 buffer.append(token); 
         				 if (buffer.toString().indexOf ("<eol>") > 0) {
@@ -308,7 +316,7 @@ class Lexer<E> {
         			status = false;
         		}*/
         	}
-        	//System.out.println ("Token List :" + tokenList );
+        	System.out.println ("Token List :" + tokenList );
         }
         
         public ArrayList getTokens () {
@@ -345,7 +353,7 @@ class Lexer<E> {
         	return result;  	
         }
         public boolean isOperatorSymbol(String token) {
-        	Pattern p = Pattern.compile("^[-+*/<>&.@/:=~|$!#%^_\\[\\]{}\"'?]$");
+        	Pattern p = Pattern.compile("^[-+*/<>&.@/:=~|$!#%^\\[\\]{}\"'?]$");  //  ^[-+*/<>&.@/:=~|$!#%^_\\[\\]{}\"'?]$
         	Matcher match = p.matcher(token);
         	boolean result = match.find();
 			return result;
