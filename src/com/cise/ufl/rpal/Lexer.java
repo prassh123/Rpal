@@ -34,7 +34,7 @@ class Lexer<E> {
                         e.printStackTrace();
                     }
                
-                    System.out.println (contents);
+                System.out.println ("BEFORE " + contents);
                     
                 int temp = contents.indexOf(",");        
                  while (temp > 0) {
@@ -45,7 +45,6 @@ class Lexer<E> {
                
                 
                 int temp2 = contents.indexOf(")");        
-             
                 while (temp2 > 0) {             
                     contents.insert(temp2, " ");   // inserting a space in case of Commas
                     contents.insert(temp2+2, " ");
@@ -54,15 +53,19 @@ class Lexer<E> {
               
                 temp2 = contents.indexOf("(");  
                 System.out.println ("temp2 "+ temp2);
-                
                 while (temp2 > 0) {
-          
                      contents.insert(temp2, " ");   // inserting a space in case of Commas
                      contents.insert(temp2+2, " ");
-             
-                 temp2 = contents.indexOf("(", temp2+4);
+                     temp2 = contents.indexOf("(", temp2+4);
                 }
-                
+                // temp fix for the single quote problem
+                temp2 = contents.indexOf("=");  
+             //   System.out.println ("temp2 "+ temp2);
+                while (temp2 > 0) {
+                     contents.insert(temp2, " ");   // inserting a space in case of Commas
+                     contents.insert(temp2+2, " ");
+                     temp2 = contents.indexOf("=", temp2+4);
+                }
                 System.out.println (contents);
                 //logger.info ("File Contents: " + contents);
         }
@@ -86,19 +89,14 @@ class Lexer<E> {
         			token =  (E) st.nextToken().trim();
         						// We only get the next token if the status is true. because we might have additional sequences of ((((( etc...
         			if (((String) token).startsWith ("'")) {
+        				
         				if (token.equals("''")) {
         					System.out.println ("Came here " + token);
         					tokenList.add((E) token.toString());
         					status = false;
         					continue;
         				}
-        		/*		else if (((String)token).charAt(0) == '\'' &&  ((String)token).length() == 1) {
-        					System.out.println ("Came here3 " + token);
-        					StringBuffer sb = new StringBuffer ();
-        					tokenList.add((E) token.toString());
-        					status = true;
-        					continue;
-        				}*/
+   
         				else {
         					String temp = ((String) token);
         					

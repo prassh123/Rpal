@@ -93,7 +93,7 @@ public class Parser {
     	if ((type.equalsIgnoreCase("Identifier") ||  type.equalsIgnoreCase("Integer") || type.equalsIgnoreCase("String")) && !token.equals("in") &&!token.equals("eq")
     	&& !token.equals("rec") && !token.equals ("where") && !token.equals ("let") && !token.equals("within") &&!token.equals("and") &&!token.equals("fn") &&!token.equals (",")
     		&&!token.equals (".") && !token.equals ("le") && !token.equals ("gr") && !token.equals ("ge") && !token.equals ("ls") && !token.equals("or") && !token.equals("not")
-    		&& !token.equals("aug") && !token.equals ("nil"))
+    		&& !token.equals("aug") && !token.equals ("nil")  && !token.equals ("ne") && !token.equalsIgnoreCase ("true") && !token.equalsIgnoreCase ("false"))
     	{
     		System.out.println ("Building " + token + " with 0 children");
     		if (token.equals ("nil")) {
@@ -627,6 +627,7 @@ public class Parser {
 		while ( (!isReserved(nextToken) && !lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Arrow") 
 				&& !nextToken.equals("|") && !lexer.getTypeOfToken (nextToken).equalsIgnoreCase("Operator_symbol") 
 				&& !nextToken.equals("gr") && !nextToken.equals("ge") && !nextToken.equals("ls") && !nextToken.equals("le") && !nextToken.equals("or") 
+				&& !nextToken.equals("ne") 
 				&& ! lexer.getTypeOfToken (nextToken).equalsIgnoreCase(")") && !nextToken.equals(",") && !nextToken.equals("aug"))  &&
 				(lexer.getTypeOfToken(nextToken).equalsIgnoreCase("Integer") ||
 			     lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("Identifier") || lexer.getTypeOfToken(nextToken).equalsIgnoreCase ("true") 
@@ -653,12 +654,12 @@ public class Parser {
 
 	    if (nextToken.equalsIgnoreCase("True")) {
 			readToken ("True");
-			Build_tree ("True", 1);
+			Build_tree ("<true>", 0);
 			System.out.println ("Building tree with TRUE node and 1 children");
 		}
 		else if (nextToken.equalsIgnoreCase("False")) {
 			readToken ("False");
-			Build_tree ("False", 1);
+			Build_tree ("<false>", 0);
 			System.out.println ("Building tree with FALSE node and 1 children");
 		}
 		else if (nextToken.equalsIgnoreCase("nil")) {
