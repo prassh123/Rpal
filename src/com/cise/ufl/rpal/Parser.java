@@ -5,6 +5,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+
 class TreeNode {
 	String token;
 	
@@ -771,19 +777,31 @@ public class Parser {
 	}
 
 	public static void main (String args[]) {
-		Parser p = new Parser (args[0]);
-		//p.testBuild_tree();
+		// create Options object
+		Options options = new Options();
+		// add t option
+		options.addOption("ast", true, "rpal test file name");
+		options.addOption("noout", false, "No output computation");
+	
+		CommandLineParser parser = new PosixParser();
 		try {
-		    p.fn_E();
-		    if (nextToken.equalsIgnoreCase("PARSE_COMPLETE")) {
-				System.out.println ("*******PARSING COMPLETE*****");
-				System.out.println ("-------TREE VALUES----------");
-				p.preOrderTraversal ();
-				System.exit(0);
+			CommandLine cmd = parser.parse( options, args);
+			if (cmd.hasOption("noout")) {
+				
 			}
-		} catch (Exception e) {
-			System.out.println (e.getMessage());
-			e.printStackTrace();
+			if (cmd.hasOption("ast")) {
+				String rpalFileName = cmd.getOptionValue("ast");
+				Parser p = new Parser (rpalFileName);
+				   p.fn_E();
+				    if (nextToken.equalsIgnoreCase("PARSE_COMPLETE")) {
+						System.out.println ("*******PARSING COMPLETE*****");
+						System.out.println ("-------TREE VALUES----------");
+						p.preOrderTraversal ();
+						System.exit(0);
+			         }
+			}
+		} catch (Exception e1) {
+			System.out.println (e1.getMessage());
 		}
 	}
 	
