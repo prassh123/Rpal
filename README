@@ -1,3 +1,22 @@
-06/16
+************************
+INSTRUCTIONS:
+************************
+1. Rpal installation directory is already included as part of this jar.
+2. Go to the Rpal directory and issue a "make"
+3. cd to one directory above (the base dir of the project)
+4. make cl - to remove all the class files
+5. make all - to compile the java files. The results get placed under the directory "parser"
+6. make run OPT=-ast TESTFILE=<Path to the rpal test file> to get the abstract syntax tree.
+   Example: make run OPT=-ast TESTFILE=rpal/tests/add
+7. make test - to invoke and run the tests.
+
+There is a shell file "p1" that is included in case if you need to run an individual rpal test file.
+Syntax:
+./p1 -ast <path to rpal file>
+Example: ./p1 -ast rpal/tests/add
+./p1 -l  - Lists the options available
+./p1 - produces no output.
+
+07/05
 ------
 Version 1 of the RPAL interpreter written in Java

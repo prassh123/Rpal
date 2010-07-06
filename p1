@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export CLASSPATH=${CLASSPATH}:`pwd`/parser:`pwd`/lib/commons-cli-1.2.jar
+java P1 $1 $2 $3 

@@ -10,7 +10,7 @@ add_remaining s2 result c2 = rec_add_remaining s2 result c2 where
 //add_remaining s2 c2 result = c2
 within
 merge_tuples t1 t2 = merge_tuples_rec t1 t2 (Order t2) 1 1 nil  where
-        rec  merge_tuples_rec s1 s2 s2_N c1 c2 result = c1 eq ((Order s1)+1) -> add_remaining s2 result c2
+        rec  merge_tuples_rec s1 s2 s2_N c1 c2 result = c1 eq ((Order s1)+1)->add_remaining s2 result c2
                                         | c2 eq ((Order s2)+1) -> add_remaining s1 result c1
                                         | (s1 c1) < (s2 c2) -> merge_tuples_rec s1 s2 s2_N (c1+1) c2 (result aug (s1 c1))
                                         | (s1 c1) > (s2 c2) -> merge_tuples_rec s1 s2 s2_N c1 (c2+1) (result aug (s2 c2))

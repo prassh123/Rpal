@@ -1,8 +1,15 @@
+#!/bin/bash
+export CLASSPATH := ./parser:./lib/commons-cli-1.2.jar
+export PATH := ./rpal:${PATH}
+
 all:
-	javac *.java
+        javac parser/*.java
 cl:
-	rm -f *.class
+        rm -f parser/*.class
 run:
-	java p1
+        java P1 $(OPT) $(TESTFILE)   
 test:
-	./difftest.pl -1 "./rpal -ast -noout FILE" -2 "java P1 -ast -noout FILE" -t ~/rpal/tests/
+        chmod +x difftest.pl p1
+        chmod 777 ./rpal/tests/*
+        chmod +x ./rpal/rpal
+        ./difftest.pl -1 "./rpal/rpal -ast -noout FILE" -2 "./p1 -ast FILE" -t ./rpal/tests/ 

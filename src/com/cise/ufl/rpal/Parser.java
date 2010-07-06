@@ -786,6 +786,10 @@ public class Parser {
 		CommandLineParser parser = new PosixParser();
 		try {
 			CommandLine cmd = parser.parse( options, args);
+			 if (cmd.hasOption("l")) {
+                 System.out.println ("USAGE: ./p1 [-ast][-noout] <testfile>");
+                 return;
+                 }
 			if (cmd.hasOption("noout")) {
 				
 			}
