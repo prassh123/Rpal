@@ -10,18 +10,18 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class Lexer<E> {
+public class Lexer<E> {
         private StringBuilder contents = new StringBuilder();
         private ArrayList<E> tokenList = new ArrayList<E> ();
         private HashMap lexTable = new HashMap ();
        
-        Logger logger = Logger.getLogger("rpalLogger");
+        //Logger logger = Logger.getLogger("rpalLogger");
         
 
         public void readFile (String fileName) {
-        		logger.info ("---------------------------\n");
+        		/*logger.info ("---------------------------\n");
                 logger.info ("Input file: " + fileName);
-                logger.info ("---------------------------\n");
+                logger.info ("---------------------------\n");*/
                 try {
                         BufferedReader br = new BufferedReader (new FileReader(fileName));
                         String line = null;
@@ -34,7 +34,7 @@ class Lexer<E> {
                         e.printStackTrace();
                     }
                
-                System.out.println ("BEFORE " + contents);
+                //System.out.println ("BEFORE " + contents);
                     
                 int temp = contents.indexOf(",");        
                  while (temp > 0) {
@@ -67,20 +67,20 @@ class Lexer<E> {
                 }
                 // temp fix for the single quote problem
                 temp2 = contents.indexOf("=");  
-             //   System.out.println ("temp2 "+ temp2);
+             //   //System.out.println ("temp2 "+ temp2);
                 while (temp2 > 0) {
                      contents.insert(temp2, " ");   // inserting a space in case of Commas
                      contents.insert(temp2+2, " ");
                      temp2 = contents.indexOf("=", temp2+4);
                 }
-                System.out.println (contents);
+                //System.out.println (contents);
                 //logger.info ("File Contents: " + contents);
         }
         
         public void constructTokens () {
-        	logger.info("Initiating token construction...");
+        	//logger.info("Initiating token construction...");
         	if (contents == null || contents.equals("")) {
-        		logger.severe("content is empty");
+        		//logger.severe("content is empty");
         		return;
         	}
         	
@@ -98,7 +98,7 @@ class Lexer<E> {
         			if (((String) token).startsWith ("'")) {
         				
         				if (token.equals("''")) {
-        					System.out.println ("Came here " + token);
+        					//System.out.println ("Came here " + token);
         					tokenList.add((E) token.toString());
         					status = false;
         					continue;
@@ -108,17 +108,17 @@ class Lexer<E> {
         					String temp = ((String) token);
         					
         					if (temp.charAt(0) == '\'' && temp.charAt(temp.length()-1) == '\'' && temp.length() > 1) {    // add the string as it is...> 1 check is reqd
-        						System.out.println ("Came here2 " + token);
+        						//System.out.println ("Came here2 " + token);
             					tokenList.add((E) temp);
             					status = false;
             					continue;
         					}
         				}
         				StringBuffer buffer = new StringBuffer ();
-        				System.out.println ("TOKEN did COME HERE " + token);
+        				//System.out.println ("TOKEN did COME HERE " + token);
         				String tempToken = "";
         				while (tempToken.endsWith("'") != true)  {
-        					System.out.println ("TOKEN SHD COME HERE " + tempToken);
+        					//System.out.println ("TOKEN SHD COME HERE " + tempToken);
         						buffer.append(token+" ");
         					 tempToken =  (String) st.nextToken();
         					 token = (E) tempToken;
@@ -131,13 +131,13 @@ class Lexer<E> {
         				 status=false;
         				 continue;
         			}
-        			 System.out.println ("About to classify " + token );
+        			 //System.out.println ("About to classify " + token );
         		}
        /* 		if (((String) token).startsWith ("'")) {
-        			System.out.println("Token started with " +token );
+        			//System.out.println("Token started with " +token );
         			StringBuffer buffer = new StringBuffer ();
         			while (((String) token).endsWith("'") != true)  {
-        				System.out.println ("Inside string " + token);
+        				//System.out.println ("Inside string " + token);
          			    buffer.append(token);
          			    token =  (E) st.nextToken();
         			}
@@ -147,7 +147,7 @@ class Lexer<E> {
         				
         		
         		    status=false;
-        		    System.out.println ("ADDED STRING TOKEN "+ buffer.toString());
+        		    //System.out.println ("ADDED STRING TOKEN "+ buffer.toString());
         		    continue;
         		}*/
         		if (token.equals("<eol>") || token.equals ("\t") || token.equals("\n")) {
@@ -175,7 +175,7 @@ class Lexer<E> {
         		        						)
         			{
         					operatorFound = true;
-        					System.out.println (temp.charAt(i));
+        					//System.out.println (temp.charAt(i));
         					sb.append(((String)token).charAt(i));		// keep pushing the tokens in to the string buffer until we encounter any of the above...
         					i++;
         					if (i == temp.length()) {
@@ -186,7 +186,7 @@ class Lexer<E> {
         			
         			
         			if (temp.length() == 1 && temp.charAt(0) != 0) {
-        				System.out.println ("Adding just one character" + temp.charAt(0));
+        				//System.out.println ("Adding just one character" + temp.charAt(0));
         				tokenList.add((E) temp);	
         				status = false;
         				continue;
@@ -197,15 +197,15 @@ class Lexer<E> {
         			   
         			    if ( isOperatorSymbol(new String(""+operator) )|| 
         			    	 isLeftBracketSymbol(new String(""+operator) ) || isRightBracketSymbol(new String(""+operator) ) || isCommaOperatorSymbol(new String(""+operator))) {
-        			        System.out.println ("Operator Found " +  operator);
+        			        //System.out.println ("Operator Found " +  operator);
         			        if (sb.length()>0) {
-        			        	System.out.println ("Adding a complete token " + sb);
+        			        	//System.out.println ("Adding a complete token " + sb);
         			        	tokenList.add((E) sb.toString());
         			        } 
         			        if (operator == '-' && ((String)token).charAt(i+1) !=0 &&  ((String)token).charAt(i+1) == '>') {
         			        	tokenList.add((E) "->");	
-        			        	System.out.println ("Token added ->");
-        			        	System.out.println ("String token"+ ((String)token).length() + "and I+2 value " + (i+2) );
+        			        	//System.out.println ("Token added ->");
+        			        	//System.out.println ("String token"+ ((String)token).length() + "and I+2 value " + (i+2) );
         			        	if ( (i+2) >= ((String)token).length()) {
         			        		status = false;
         			        		continue;
@@ -214,11 +214,11 @@ class Lexer<E> {
         			        		
         			        		token = (E) ((String)token).substring(i+2);
         			        		temp = (String) token;
-        			        		System.out.println ("There is a token further so, making the token as " +token );
+        			        		//System.out.println ("There is a token further so, making the token as " +token );
         			        	}
         			        }
         			        else {
-        			        	System.out.println ("Adding Operator " + operator);
+        			        	//System.out.println ("Adding Operator " + operator);
         			        	tokenList.add( (E) new String(""+operator));
         			        }
         			       
@@ -226,11 +226,11 @@ class Lexer<E> {
         			            
         			        	if (sb.length() > 0) {
         			        	    token = (E) temp.substring(sb.length()+1);
-        			        	    System.out.println ("After reduction " + token);
+        			        	    //System.out.println ("After reduction " + token);
         			        	}
         			        	else {
         			        		token = (E) temp.substring(1);
-        			        		System.out.println ("After reduction " + token);
+        			        		//System.out.println ("After reduction " + token);
         			        	}
         			        	if (((String)token).length() > 0) { 
         			            status = true;
@@ -247,7 +247,7 @@ class Lexer<E> {
         			    }
         			    }
         			    else { 
-        			    	System.out.println ("I think this is a complete  token " + sb);
+        			    	//System.out.println ("I think this is a complete  token " + sb);
     			        	if (sb.length() > 0)
         			    	    tokenList.add((E) sb.toString());
         			    	status=false;
@@ -255,7 +255,7 @@ class Lexer<E> {
         			}
         			else {
         				
-        				System.out.println ("Operator not found, so jus adding " + sb);
+        				//System.out.println ("Operator not found, so jus adding " + sb);
         				if (sb.length() > 0)
         				    tokenList.add((E) sb.toString());
         				status = false;
@@ -277,7 +277,7 @@ class Lexer<E> {
         				status = false;
         				continue;
         			}
-        			System.out.println ("Token is reduced to " + token);
+        			//System.out.println ("Token is reduced to " + token);
         			continue;
         		}
         		
@@ -304,7 +304,7 @@ class Lexer<E> {
             			token = (E) temp.substring(0, ((String)token).length()-1);			// we add the last occurance of ')' to the list and then let the while loop detect subsequent preceding tokens by setting the status to false.
         			}
         			else {
-        			//System.out.println ("Token is reduced to " + token);
+        			////System.out.println ("Token is reduced to " + token);
         				status = false;
         				continue;
         			}
@@ -316,7 +316,7 @@ class Lexer<E> {
         			status = false;
         		}*/
         	}
-        	System.out.println ("Token List :" + tokenList );
+        	//System.out.println ("Token List :" + tokenList );
         }
         
         public ArrayList getTokens () {
@@ -330,7 +330,7 @@ class Lexer<E> {
         	Pattern p = Pattern.compile("^->$");  // pattern to detect only the integers
         	Matcher match = p.matcher(token);
         	boolean result = match.find();
-        	System.out.println ("Matched arrow" + result);
+        	//System.out.println ("Matched arrow" + result);
         	return result;  	
         }
         private boolean isInteger (String token) {
@@ -381,44 +381,44 @@ class Lexer<E> {
         
         public String getTypeOfToken (String token) {				// Note that the order of checking for various types is important...
         	if ( isInteger (token)) {
-        		System.out.println( token + "\t" + "Integer");
+        		//System.out.println( token + "\t" + "Integer");
         		return "Integer";
         	}
         	
         	else if (isOperatorSymbol (token)) {
-        		System.out.println( token + "\t" + "Operator");
+        		//System.out.println( token + "\t" + "Operator");
         		return "Operator_symbol";
         	}
         	
          	else if (isLeftBracketSymbol (token)) {
-        		System.out.println( token + "\t" + "(");
+        		//System.out.println( token + "\t" + "(");
         		return "(";
         	}
         	
          	else if (isRightBracketSymbol (token)) {
-        		System.out.println( token + "\t" + ")");
+        		//System.out.println( token + "\t" + ")");
         		return ")";
         	}
         	
          	else if (isCommaOperatorSymbol (token)) {
-        		System.out.println( token + "\t" + ",");
+        		//System.out.println( token + "\t" + ",");
         		return ",";
         	}
         	
         	else if (isIdentifier(token)) {
-        		System.out.println( token + "\t" + "Identifier");
+        		//System.out.println( token + "\t" + "Identifier");
         		return "Identifier";
            	}
         	else if (isArrow(token)) {
-        		System.out.println( token + "\t" + "Arrow");
+        		//System.out.println( token + "\t" + "Arrow");
         		return "Arrow";
         	}
         	else if (isString (token)) {
-        		System.out.println( token + "\t" + "String");
+        		//System.out.println( token + "\t" + "String");
         		return "String";
         	}
         	else {
-        		System.out.println( token + "\t" + "Unknown");
+        		//System.out.println( token + "\t" + "Unknown");
         		return "Unknown";
         	}
         }
@@ -433,14 +433,14 @@ class Lexer<E> {
         		}
         		//this.getTypeOfToken((String) token);
         	}
-        		System.out.print(lexTable);
+        		//System.out.print(lexTable);
 		    }
         
         public static void main(String args[]) {
                 Lexer lexer = new Lexer ();
                 lexer.readFile (args[0]);
                lexer.constructTokens();
-              // System.out.println("The result  " + lexer.isIdentifier("Vec_sum"));
+              // //System.out.println("The result  " + lexer.isIdentifier("Vec_sum"));
                 lexer.printLexTable();
         }
 }
