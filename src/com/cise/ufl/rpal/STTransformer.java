@@ -160,7 +160,7 @@ public class STTransformer extends Parser {
 		TreeNode E = null;
 	
 		//TreeNode equalsNode = new TreeNode("=");
-		TreeNode ystar = new TreeNode("Y*");
+		TreeNode ystar = new TreeNode("<Y*>");
 		
 		
 		TreeNode gammaNode = new TreeNode(GAMMA);
@@ -189,11 +189,9 @@ public class STTransformer extends Parser {
 		    gammaNode.setLeftChild(ystar);
 		    
 		    ystar.setRightChild(lambdaNode);
-		    lambdaNode.setLeftChild(X);
 		    lambdaNode.setLeftChild(newX);
 		    newX.setRightChild(E);
-		
-		   // preOrder(node, 0);
+		   
 		}
 	}
 	
@@ -219,8 +217,10 @@ public class STTransformer extends Parser {
 			TreeNode PCopy = P;
 			
 			while (! (PCopy.getRightChild().getTokenValue().equals("->") || 
-					 PCopy.getRightChild().getTokenValue().equals(GAMMA)) 
-				  ) {    // first i thought only ->
+					 PCopy.getRightChild().getTokenValue().equals(GAMMA) ||
+					 PCopy.getRightChild().getTokenValue().startsWith("<INT:")
+					 ) 
+		    	  ) {    // first i thought only ->
 				V.add(PCopy.getRightChild());
 				PCopy = PCopy.getRightChild();      
 			}
