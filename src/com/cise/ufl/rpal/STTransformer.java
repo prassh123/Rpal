@@ -217,7 +217,9 @@ public class STTransformer extends Parser {
 			
 			while (! (PCopy.getRightChild().getTokenValue().equals("->") || 
 					 PCopy.getRightChild().getTokenValue().equals(GAMMA) ||
-					 PCopy.getRightChild().getTokenValue().startsWith("<INT:")
+					 PCopy.getRightChild().getTokenValue().startsWith("<INT:") ||
+					 lexer.getTypeOfToken(PCopy.getRightChild().getTokenValue()).equalsIgnoreCase("Operator_symbol") ||
+					 PCopy.getRightChild().getTokenValue().equalsIgnoreCase("aug")
 					 ) 
 		    	  ) {    // first i thought only ->
 				V.add(PCopy.getRightChild());
@@ -335,7 +337,7 @@ public class STTransformer extends Parser {
    	    
 		N.setRightChild(E1);
 	    
-		E1.setLeftChild(null);
+		// E1.setLeftChild(null); fix for bug on pairs1
 		E1.setRightChild(null);
 		
 		
