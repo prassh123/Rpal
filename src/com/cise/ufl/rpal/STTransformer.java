@@ -206,46 +206,61 @@ public class STTransformer extends Parser {
 		TreeNode equalsNode = new TreeNode("=");
 		TreeNode gammaNode = new TreeNode(GAMMA);
 		TreeNode lambdaNode = new TreeNode (LAMBDA) ;
-	
+	    try {
 		System.out.println ("\n\nIncoming node to convertFcn_Form  " + node.getTokenValue());
-		if ( ! node.getTokenValue().equals("fcn_form") ) {
-			System.out.println ("Expected fcn_form statement");
+		if ( ! node.getTokenValue().equals("function_form") ) {
+			System.out.println ("Expected function_form statement");
 			return;
 		}
-		
+		    node.setTokenValue("=");   //setting function_form to be '='
+		   
 			System.out.println ("Setting P node to be " + node.getLeftChild().getTokenValue());
 			P = node.getLeftChild();
 			TreeNode PCopy = P;
 			
-			while (PCopy.getRightChild() != null) {
+		/*	while (PCopy.getRightChild() != null) {
+				V.add(PCopy.getRightChild());
+				PCopy = PCopy.getRightChild();      
+			}*/
+			while (PCopy.getRightChild().getTokenValue() != "->") {
 				V.add(PCopy.getRightChild());
 				PCopy = PCopy.getRightChild();      
 			}
-			E = PCopy; // The last node should be E
 			
-			equalsNode.setLeftChild(P);
-			P.setRightChild(lambdaNode);
-			lambdaNode = new TreeNode (LAMBDA);
+			E = PCopy.getRightChild(); // The last node should be E
+		    //System.out.println ("Last E node " + E.getTokenValue());
+		 	P.setRightChild(lambdaNode);
+	
 			
-		
+		    
 			for (int i=0; i < V.size(); i++) {
+				//lambdaNode = new TreeNode (LAMBDA);
+				System.out.println ("Setting " +lambdaNode.getTokenValue() + " to " + V.get(i).getTokenValue() );
 				lambdaNode.setLeftChild(V.get(i));         // I belive we only set up to the number of V's. However lets double check.
-				lambdaNode = new TreeNode (LAMBDA);
-				V.get(i).setRightChild(lambdaNode);
-				
+				if (V.size() > 1) {	
+				    lambdaNode = new TreeNode (LAMBDA);
+				    V.get(i).setRightChild(lambdaNode);
+				}
 			}
 			
+			
+			System.out.println ("Setting  " + V.get(V.size()-1).getTokenValue() + " to be " + E.getTokenValue());
+			
 			V.get(V.size()-1).setRightChild(E);
-		   // preOrder(node, 0);
-		
+			
+		  
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    }
 	}
 	
 	public void convertAnd (TreeNode node) {
 		
+		
 		ArrayList <TreeNode> X = new ArrayList<TreeNode> ();
 		ArrayList <TreeNode> E = new ArrayList<TreeNode> ();
 	
-		TreeNode equalsNode = new TreeNode("=");
+		//TreeNode equalsNode = new TreeNode("=");
 		
 		TreeNode gammaNode = new TreeNode(GAMMA);
 		TreeNode lambdaNode = new TreeNode (LAMBDA);
@@ -258,20 +273,31 @@ public class STTransformer extends Parser {
 			return;
 		}
 		
-		if ( node.getLeftChild().equals("=")) {
+		node.setTokenValue("="); // Converting and to '='
+		
+		if ( node.getLeftChild().getTokenValue().equals("=")) {
 			
 			TreeNode equalNode = node.getLeftChild();
 			TreeNode equalNodeCopy = equalNode;
-			while (equalNodeCopy.getRightChild() != null) {
+			while (equalNodeCopy != null) {
+				
 				X.add(equalNodeCopy.getLeftChild());
-				E.add(equalNodeCopy.getRightChild());
+				E.add(equalNodeCopy.getLeftChild().getRightChild());
 				equalNodeCopy = equalNodeCopy.getRightChild();
 			}
 			
-			equalsNode.setLeftChild(commaNode);
+			// Disconnect the last X node's right child. This infact worked.
+			X.get(X.size()-1).setRightChild(null);
+			
+			
+			node.setLeftChild(commaNode);
 			commaNode.setRightChild(tauNode);
 			
+			System.out.println ("CommaNode left child " + X.get(0).getTokenValue());
 			commaNode.setLeftChild(X.get(0));
+			
+			
+			System.out.println ("TauNode left child " + E.get(0).getTokenValue());
 			tauNode.setLeftChild(E.get(0));
 			
 			for (int i=0; i<X.size()-1; i++) {
@@ -281,8 +307,7 @@ public class STTransformer extends Parser {
 			for (int i=0; i<E.size()-1; i++) {
 				E.get(i).setRightChild(E.get(i+1));
 			}
-		   
-		  //  preOrder(node, 0);
+		
 		}
 	}
 	
@@ -318,7 +343,7 @@ public class STTransformer extends Parser {
 	    if (t.getRightChild() != null) {  
 		    postOrder (t.getRightChild());
 	    }
-	    System.out.println(t.getTokenValue());
+	    //System.out.println(t.getTokenValue());
 	    reduceConstruct (t);
 	}
     
@@ -337,7 +362,7 @@ public class STTransformer extends Parser {
     	else if (nodeValue.equals("rec")) {
     		convertRec(t);
     	}
-    	else if (nodeValue.equals("fcn_form")) {
+    	else if (nodeValue.equals("function_form")) {
     		convertFcnForm(t);
     	}
     	else if (nodeValue.equals ("and")) {
