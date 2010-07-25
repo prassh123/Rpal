@@ -84,9 +84,9 @@ public class STTransformer extends Parser {
 		
     	node.setRightChild  (null);  // null the right child of the incoming where node
     	
-    	P.setLeftChild(null);
+    	//P.setLeftChild(null);
     	P.setRightChild(null);
-    	X.setLeftChild(null);
+    	//X.setLeftChild(null);
     	X.setRightChild(P);
     	
     	lambdaNode.setLeftChild(X);
@@ -96,8 +96,7 @@ public class STTransformer extends Parser {
     	System.out.println ("----------------\n");
     	System.out.println ("----where------\n");
     	preOrder(node, 0);
-   
-		}
+   		}
 		
 	}
 	
