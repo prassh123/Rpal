@@ -218,11 +218,9 @@ public class STTransformer extends Parser {
 			P = node.getLeftChild();
 			TreeNode PCopy = P;
 			
-		/*	while (PCopy.getRightChild() != null) {
-				V.add(PCopy.getRightChild());
-				PCopy = PCopy.getRightChild();      
-			}*/
-			while (PCopy.getRightChild().getTokenValue() != "->") {
+			while (! (PCopy.getRightChild().getTokenValue().equals("->") || 
+					 PCopy.getRightChild().getTokenValue().equals(GAMMA)) 
+				  ) {    // first i thought only ->
 				V.add(PCopy.getRightChild());
 				PCopy = PCopy.getRightChild();      
 			}
@@ -316,7 +314,7 @@ public class STTransformer extends Parser {
 		TreeNode N = null;
 		TreeNode E2 = null;
 		
-		TreeNode gammaNode1 = new TreeNode(GAMMA);
+		//TreeNode gammaNode1 = new TreeNode(GAMMA);
 		TreeNode gammaNode2 = new TreeNode(GAMMA);
 		
 		System.out.println ("\n\nIncoming node to convertAtTheRateOf " + node.getTokenValue());
@@ -324,16 +322,25 @@ public class STTransformer extends Parser {
 			System.out.println ("Expected @ statement");
 			return;
 		}
+		
+		node.setTokenValue(GAMMA);
+		
 		E1 = node.getLeftChild();
+		
 		N = E1.getRightChild();
 		E2 = N.getRightChild();
 		
-		gammaNode1.setLeftChild(gammaNode2);
-		gammaNode2.setRightChild(E2);
-		gammaNode2.setLeftChild(N);
+		node.setLeftChild(gammaNode2);
+        gammaNode2.setRightChild(E2);
+        gammaNode2.setLeftChild(N);
+   	    
 		N.setRightChild(E1);
+	    
+		E1.setLeftChild(null);
+		E1.setRightChild(null);
 		
-		//preOrder(gammaNode1, 0);
+		
+		  
 	}
 	
     private void postOrder (TreeNode t) {	
