@@ -212,13 +212,14 @@ public class Parser {
 		preOrder (root, depth);
 	}
 	
-	protected void preOrder (TreeNode t, int depth) {
-		
+	protected ArrayList<String> preOrder (TreeNode t, int depth) {
+		ArrayList <String> elements = new ArrayList <String> ();
 		String dot="";
 		for(int i=0;i<depth;i++)
 		{
 			dot=dot+".";
 		}
+		elements.add(t.getTokenValue());
 		System.out.println (dot + t.getTokenValue());
 		depth++;
 		if  (t.getLeftChild() != null ) {
@@ -227,6 +228,7 @@ public class Parser {
 	    if (t.getRightChild() != null) {  
 		    preOrder (t.getRightChild(),depth-1);
 	    }
+	    return elements;
 	}
 	
 	/*private int height(TreeNode root)
