@@ -6,6 +6,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class STTransformer extends Parser {
 	
@@ -14,6 +15,9 @@ public class STTransformer extends Parser {
 	private static final String LAMBDA = "lambda";
 	
 	Parser p = null;
+	ArrayList<String> controlStructure =  new ArrayList ();
+	private static int counter = 1;
+	Stack stack = new Stack ();
 	
 	
 	public void convertLet (TreeNode node) {
@@ -410,8 +414,101 @@ public class STTransformer extends Parser {
 		
 		//Print it out in a pre-order way
 		p.preOrder(p.getRootTreeNode(), 0);
+		
+		this.generateControlStructures();
 	}
 	
+	public void generateControlStructures () {
+		
+		/* Logic would be to travers through the control Elemets in a pre-order way
+		 * when we encounter a lambda switch to a new context.
+		*/
+		System.out.println ("Generating Control Structures");
+		
+		stack.push(p.getRootTreeNode());
+		//preOrderTraverse (p.getRootTreeNode());
+		
+		while (!stack.empty()) {
+			TreeNode elem = (TreeNode) stack.pop();
+			System.out.println ("Stack contains " + elem.getTokenValue()); 
+			controlStructure = preOrderTraverse (elem);	
+			System.out.println ("CONTROL STRUCTURE : " + controlStructure);
+			controlStructure = new ArrayList (); // We need to do this to clear out the arrayList
+			
+		}
+		
+	}
+	
+	public ArrayList preOrderTraverse (TreeNode t) {
+		
+		
+	    TreeNode temp = null;	
+	/*	if (t.getTokenValue().equals(LAMBDA)) {
+		    System.out.println (t.getTokenValue() + "_" + (counter++) + "_" + getValueofToken(t.getLeftChild().getTokenValue()));
+			
+		    temp = t.getLeftChild();
+		    preOrderTraverse(t.getRightChild());
+		    
+		    if (temp != null ) {
+		    	preOrderTraverse (temp.getRightChild());
+		    }
+		}
+		else {
+			System.out.println (getValueofToken(t.getTokenValue()));
+			
+		
+		if  (t.getLeftChild() != null ) {
+		    preOrderTraverse (t.getLeftChild());
+		}
+	    if (t.getRightChild() != null) {  
+		    preOrderTraverse (t.getRightChild());
+	    }
+		}*/
+	    if (t.getTokenValue().equals(LAMBDA)) {
+	    	if (t.getLeftChild().getTokenValue().equals(",")) {
+	    		TreeNode node = t.getLeftChild().getLeftChild();
+	    		StringBuffer sb = new StringBuffer ();
+	    		while (node != null) {
+	    			sb.append (getValueofToken(node.getTokenValue())+ ",");
+	    			node = node.getRightChild();
+	    		}
+	    		sb.deleteCharAt(sb.length()-1);
+	    	    System.out.println (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb.toString() + "}"); 
+	    	    controlStructure.add (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb.toString() + "}"); 	
+	    	    counter++;
+	    	}
+	    	else {
+	    	    System.out.println (t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue())); 
+	    	    controlStructure.add (t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue())); 	
+	    	    counter++;
+	    	}
+	    	stack.push(t.getLeftChild().getRightChild()); 
+	    	if (t.getRightChild() != null) {
+	    	    preOrderTraverse (t.getRightChild());
+	    	}
+	    	
+	    	return controlStructure; // will this backtrace ?
+	    }
+	    else {
+	    	System.out.println (getValueofToken(t.getTokenValue()));
+	    	controlStructure.add(getValueofToken(t.getTokenValue()));
+	    }
+	    	if  (t.getLeftChild() != null ) {
+			    preOrderTraverse (t.getLeftChild());
+			}
+		    if (t.getRightChild() != null) {  
+			    preOrderTraverse (t.getRightChild());
+		    }
+	   
+	    return controlStructure;
+	}
+	
+	private String getValueofToken (String token) {
+		int beginIndex = token.indexOf(':')+1;
+		if (beginIndex <= 0) 
+			return token;
+		return token.substring(beginIndex, token.length()-1);
+	}
 	public static void main (String args[]) {
 		// create Options object
 		Options options = new Options();
