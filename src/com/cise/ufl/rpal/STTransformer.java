@@ -18,8 +18,25 @@ public class STTransformer extends Parser {
 	Parser p = null;
 	ArrayList<String> controlStructure =  new ArrayList ();
 	private static int counter = 1;
-	Stack stack = new Stack ();
+	//Stack stack = new Stack ();
+	ArrayList stack = new ArrayList();
+	private ArrayList  controlStructureArray = new ArrayList  ();
 	
+	public ArrayList getControlStructureArray () {
+		return this.controlStructureArray;
+	}
+	
+	public ArrayList getControlStructure(int index) {
+		try {	
+			if (index < 0 ) {
+				throw new ArrayIndexOutOfBoundsException();
+			}
+			return (ArrayList) this.controlStructureArray.get(index);
+		} catch (ArrayIndexOutOfBoundsException ae) {
+			ae.printStackTrace();
+		}
+		return null;
+	}
 	
 	public void convertLet (TreeNode node) {
 		TreeNode X = null;
@@ -426,14 +443,19 @@ public class STTransformer extends Parser {
 		*/
 		System.out.println ("Generating Control Structures");
 		
-		stack.push(p.getRootTreeNode());
+		//stack.push(p.getRootTreeNode());
+		stack.add(p.getRootTreeNode());
 		//preOrderTraverse (p.getRootTreeNode());
 		
-		while (!stack.empty()) {
-			TreeNode elem = (TreeNode) stack.pop();
-			//System.out.println ("Stack contains " + elem.getTokenValue()); 
+		//while (!stack.empty()) {
+		while (stack.size() != 0) {
+			//TreeNode elem = (TreeNode) stack.pop();
+			TreeNode elem = (TreeNode) stack.get(0);     // not a real stack, but arraylist based. so extra step will be to remove the first element.
+			stack.remove(0);
+			
 			controlStructure = preOrderTraverse (elem);	
 			System.out.println ("CONTROL STRUCTURE : " + controlStructure);
+			this.controlStructureArray.add(controlStructure);          // We will have the final control structure (flattened here)
 			controlStructure = new ArrayList (); // We need to do this to clear out the arrayList
 			
 		}
@@ -466,7 +488,8 @@ public class STTransformer extends Parser {
 	    	    counter++;
 	    	    
 	    	}
-	    	stack.push(t.getLeftChild().getRightChild()); 
+	    	//stack.push(t.getLeftChild().getRightChild()); 
+	    	stack.add(t.getLeftChild().getRightChild());
 	    	if (t.getRightChild() != null) {
 	    	    preOrderTraverse (t.getRightChild());
 	    	}
@@ -529,10 +552,11 @@ public class STTransformer extends Parser {
 	    	if (node != null) {
 	    		while (node != null) {
 	    			tempCount++;
+	    			node.setTokenValue(getValueofToken(node.getTokenValue())+";");   // a differentiator for the tuple elements.
 	    			node = node.getRightChild();		
 	    		}
 	    	}
-	    	t.setTokenValue("tau_"+tempCount);
+	    	t.setTokenValue("tau_"+tempCount+";");
 	    	
 	    }
 		sb.append(getValueofToken(t.getTokenValue()) + " " );
