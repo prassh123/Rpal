@@ -6,14 +6,13 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
 import java.util.ArrayList;
-import java.util.Queue;
 import java.util.Stack;
 
 public class STTransformer extends Parser {
 	
 	private String rpalFileName = "";
-	private static final String GAMMA = "gamma";
-	private static final String LAMBDA = "lambda";
+	static final String GAMMA = "gamma";
+	static final String LAMBDA = "lambda";
 	
 	Parser p = null;
 	ArrayList<String> controlStructure =  new ArrayList ();
@@ -460,6 +459,9 @@ public class STTransformer extends Parser {
 			
 		}
 		
+		// Lets pass the generated control structures to the CSE machine class.
+		CSEMachine cseMachine = new CSEMachine(controlStructureArray);
+		cseMachine.runCSEMachine();
 	}
 	
 	public ArrayList preOrderTraverse (TreeNode t) {
@@ -531,7 +533,7 @@ public class STTransformer extends Parser {
 	    }
 	    else {
 	    	//System.out.println (getValueofToken(t.getTokenValue()));
-	    	controlStructure.add(getValueofToken(t.getTokenValue()));
+	    	controlStructure.add(t.getTokenValue());
 	    }
 	    	if  (t.getLeftChild() != null ) {
 			    preOrderTraverse (t.getLeftChild());
@@ -552,14 +554,14 @@ public class STTransformer extends Parser {
 	    	if (node != null) {
 	    		while (node != null) {
 	    			tempCount++;
-	    			node.setTokenValue(getValueofToken(node.getTokenValue())+";");   // a differentiator for the tuple elements.
+	    			node.setTokenValue(node.getTokenValue()+";");   // a differentiator for the tuple elements.
 	    			node = node.getRightChild();		
 	    		}
 	    	}
 	    	t.setTokenValue("tau_"+tempCount+";");
 	    	
 	    }
-		sb.append(getValueofToken(t.getTokenValue()) + " " );
+		sb.append(t.getTokenValue() + " " );
 		
 		if  (t.getLeftChild() != null ) {
 			litePreOrderTraverse (t.getLeftChild(), sb, delta);
