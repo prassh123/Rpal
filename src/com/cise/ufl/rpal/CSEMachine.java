@@ -78,7 +78,121 @@ public class CSEMachine {
 		    if (item.equals("")) {
 		    	continue;
 		    }
-		    
+		    else if (item.equals("neg")) {
+		    	String rand = (String) stack.pop();
+		    	rand = getValueofToken (rand);
+		    	rand = "-" + rand;
+		    	stack.push(rand);
+		    	continue;
+		    }
+		    else if (item.equals("eq")) {
+		    	String rand1 = (String) stack.pop();
+		    	String rand2 = (String) stack.pop();
+		    	
+		    	Integer i1 = new Integer (getValueofToken(rand1));
+		    	Integer i2 = new Integer (getValueofToken(rand2));
+		    	
+		    	if (i1 < i2) {
+		    		stack.push("1");
+		    	}
+		    	else {
+		    		stack.push("0");
+		    	}
+		    	continue;
+		    }
+		    else if (item.equals("ls")) {
+    			String rator = (String) stack.pop();
+    			String rand = (String) stack.pop();
+    			
+    			Integer i1 = new Integer( getValueofToken(rator) );
+    			Integer i2 = new Integer( getValueofToken(rand) );
+    			
+    			if (i1 < i2 ) {
+    				stack.push("1");
+    			}
+    			else {
+    				stack.push("0");
+    			}
+    			continue;
+    		}
+		    else if (item.equals ("or")) {
+		    	Integer i1 = (Integer) stack.pop();
+		    	Integer i2 = (Integer) stack.pop();
+		    	
+		    	int result = i1 | i2;
+		    	stack.push(""+result);
+		    	continue;
+		    }
+		    else if (item.startsWith("Beta:")) {
+		    	item = item.replaceAll("Beta:", "Beta ");   // note the space after beta...
+		    	if (item.indexOf(" ") >=0) {
+		    	    StringTokenizer st = new StringTokenizer(item, " ");
+		    	    while (st.hasMoreTokens()) {
+		    	       controlStructure.add(st.nextToken());
+		    	    }
+		    	}
+		    	else {
+		    		String result = (String) stack.pop();   // at this point, the stack should only have a 1 or 0
+		    		if (result.equals("1")) {
+		    			removeDelta(controlStructure, "deltaelse:");
+		    		}
+		    		else {
+		    			removeDelta(controlStructure, "deltathen:");
+		    		}
+		    	}
+		    	/*else {
+		    		item = item.replaceAll("Beta:", "");
+		    		if (item.equals("eq")) {
+		    			String rator = (String) stack.pop();
+		    			String rand = (String) stack.pop();
+		    			
+		    			if (getValueofToken(rator).equals(getValueofToken(rand))) {
+		    				removeDelta(controlStructure, "deltaelse:");
+		    			}
+		    			else {
+		    				removeDelta(controlStructure, "deltathen:");
+		    			}
+		    			
+		    		}
+		    		else if (item.equals("ls")) {
+		    			String rator = (String) stack.pop();
+		    			String rand = (String) stack.pop();
+		    			
+		    			Integer i1 = new Integer( getValueofToken(rator) );
+		    			Integer i2 = new Integer( getValueofToken(rand) );
+		    			
+		    			if (i1 < i2 ) {
+		    				removeDelta(controlStructure, "deltaelse:");
+		    			}
+		    			else {
+		    				removeDelta(controlStructure, "deltathen:");
+		    			}
+		    		}
+		    		else if (item.equals("or")) {
+		    			String rator = (String) stack.pop();
+		    			String rand = (String) stack.pop();
+		    			
+		    			
+		    		}
+		    	}*/
+		    	continue;
+		    }
+		    else if (item.startsWith("deltaelse:")) {
+		    	item = item.replaceAll("deltaelse:", "");
+		    	StringTokenizer st = new StringTokenizer (item, " ");
+		    	while (st.hasMoreTokens()) {
+		    		controlStructure.add(st.nextToken());
+		    	}
+		    	continue;
+		    }
+		    else if (item.startsWith("deltathen:")) {
+		    	item = item.replaceAll("deltathen:", "");
+		    	StringTokenizer st = new StringTokenizer (item, " ");
+		    	while (st.hasMoreTokens()) {
+		    		controlStructure.add(st.nextToken());
+		    	}
+		    	continue;
+		    }
 		    else if (item.indexOf(" ")>=0 && !isString(getValueofToken(item)) ) {
 		    	System.out.println ("Maybe i caught a tuple" );
 		    	StringTokenizer st = new StringTokenizer (item, " ");
@@ -161,6 +275,10 @@ public class CSEMachine {
 		    	}
 		    	else if (item.equals("Conc")) {
 		    		stack.push("Conc");
+		    		continue;
+		    	}
+		    	else if (item.equals("Stern")) {
+		    		stack.push("Stern");
 		    		continue;
 		    	}
 		    	// lookup in the current environment, get the value and push it on to the stack.
@@ -258,6 +376,15 @@ public class CSEMachine {
 		}
 	}
 	
+	public void removeDelta (ArrayList controlStructure, String s) {
+			for(int i=0; i<controlStructure.size(); i++) {
+				String st =(String) controlStructure.get(i);
+				if (st.startsWith (s)) {
+					controlStructure.remove(i);
+				}
+			}
+	}
+	
 	public int getK(String lambdaNode) {
 		int startIndex= lambdaNode.indexOf("_")+1;
 		int endIndex = lambdaNode.lastIndexOf('_');
@@ -319,10 +446,18 @@ public class CSEMachine {
 			return rand;
 		}
 		
+		else if (rator.equals("Stern")) {
+			
+    		rand = rand.replaceAll("'", "");   // replace all single quotes.
+    		rand = rand.substring(1);
+    		return rand;
+		}
+		
 		else if (rator.equals("Conc")) {
 			rand = rand.replaceAll("'", "");
 			return "Conc" + rand;
 		}
+		
 		else if (rator.startsWith("Conc")) {
 			rand = rand.replaceAll("'", "");
 			rand = rator.replaceAll("Conc", "") + rand;
