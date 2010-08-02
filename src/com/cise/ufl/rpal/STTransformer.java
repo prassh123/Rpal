@@ -546,8 +546,37 @@ public class STTransformer extends Parser {
 	}
 	
 	private StringBuffer litePreOrderTraverse (TreeNode t, StringBuffer sb, String delta) {
+		 
+		 if (t.getTokenValue().equals(LAMBDA)) {
+		    	if (t.getLeftChild().getTokenValue().equals(",")) {
+		    		TreeNode node = t.getLeftChild().getLeftChild();
+		    		StringBuffer sb1 = new StringBuffer ();
+		    		while (node != null) {
+		    			sb1.append (getValueofToken(node.getTokenValue())+ ",");
+		    			node = node.getRightChild();
+		    		}
+		    		sb1.deleteCharAt(sb1.length()-1);
+		    	   // System.out.println (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb.toString() + "}"); 
+		    	   // controlStructure.add (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb1.toString() + "}"); 	
+		    		sb.append (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb1.toString() + "}");
+		    	    counter++;
+		    	   
+		    	}
+
+		    	else {
+		    	   // System.out.println (t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue())); 
+		    	   // controlStructure.add (t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue())); 	
+		    		sb.append(t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue()) +" ");
+		    	    counter++;
+		    	    
+		    	}
+		    	//stack.push(t.getLeftChild().getRightChild()); 
+		    	stack.add(t.getLeftChild().getRightChild());   		
+		    	t.setLeftChild(null);   // hack to prevent the below getLeft child from running.
+		    }
 		
-		if (t.getTokenValue().equals("tau")) {
+		 else {
+		    if (t.getTokenValue().equals("tau")) {
 	    	int tempCount = 0;
 	    	TreeNode node = t.getLeftChild();
 	    	
@@ -558,10 +587,11 @@ public class STTransformer extends Parser {
 	    			node = node.getRightChild();		
 	    		}
 	    	}
-	    	t.setTokenValue("tau_"+tempCount+";");
-	    	
-	    }
-		sb.append(t.getTokenValue() + " " );
+	    	t.setTokenValue("tau_"+tempCount+";");	
+	        }
+		    sb.append(t.getTokenValue() + " " );
+		 }
+		
 		
 		if  (t.getLeftChild() != null ) {
 			litePreOrderTraverse (t.getLeftChild(), sb, delta);
