@@ -42,6 +42,7 @@ public class CSEMachine {
 	}
 	
 	private String getValueofToken (String token) {
+		
 		int beginIndex = token.indexOf(':')+1;
 		if (beginIndex <= 0) 
 			return token;
@@ -68,6 +69,8 @@ public class CSEMachine {
 			
 			controlStructureLength = controlStructure.size();
 			String item = (String) controlStructure.get(controlStructureLength-1);	
+			item = item.trim();
+			item = item.replaceAll(";", "");    // hack for tuples
 			controlStructure.remove(controlStructureLength-1);
 			
 		    System.out.println ("ITEM:  " + item);
@@ -76,7 +79,16 @@ public class CSEMachine {
 		    	continue;
 		    }
 		    
-		    if (item.startsWith("PE_")) {   // CSE Rule 5
+		    else if (item.indexOf(" ")>=0 && !isString(getValueofToken(item)) ) {
+		    	System.out.println ("Maybe i caught a tuple" );
+		    	StringTokenizer st = new StringTokenizer (item, " ");
+		    	while (st.hasMoreTokens()) {
+			    	controlStructure.add(st.nextToken());
+		    	}
+		    	continue;
+		    }
+		    
+		    else if (item.startsWith("PE_")) {   // CSE Rule 5
 		    	String value = (String) stack.pop();
 		    	String envEnd = (String) stack.pop();
 		    	
@@ -96,22 +108,29 @@ public class CSEMachine {
 		    else if (isOperatorSymbol(item)) {
 		    	String rator = (String) stack.pop();
 	    		String rand = (String) stack.pop();
-	    		String result = apply(rator, rand);
+	    		String result = apply(item, rator, rand);
 	    		stack.push(result);
 		    }
 		    
 		    else if (item.startsWith("tau")) {
-		    	if (item.indexOf(';') >= 0) {  
-    	    	    StringTokenizer st = new StringTokenizer (item, ";");
+		    	if (item.indexOf(' ') >= 0) {  
+    	    	    StringTokenizer st = new StringTokenizer (item, " ");
 		    	    ArrayList temp = new ArrayList ();
-		    	    int numberofElements=0;
+		    	    
 		    	
 		    	    while (st.hasMoreElements()) {
 		    		    String s = st.nextToken();
+		    		        s= s.replace(';', ',');
+		    		  //  if (s.indexOf(' ')>=0) {
+		    		    	s=s.replaceAll("\\s", ",");    // in case the tuples are separated by spaces.
+		    		  //  }
 		    		    temp.add(s);
 		    	    }
 		    	   // bug: letz remove the last element.
-		    	    temp.remove(temp.size()-1);
+		    	   if (temp.get(temp.size()-1) == "")
+		    	       temp.remove(temp.size()-1);
+		    	   
+		    	   
 		    	    if (temp.size() > 0) {
 		    	        controlStructure.addAll(temp);   // add the parsed tau values
 		    	    }
@@ -121,9 +140,12 @@ public class CSEMachine {
 			    	int numberofElements = new Integer(item.substring(pos));
 			    	StringBuffer tempStr = new StringBuffer("(");
 			    	while (numberofElements > 0) {
-			    		tempStr.append(stack.pop());
+			    		tempStr.append(stack.pop() + ",");
 			    		numberofElements--;
 			    	}
+			    	// remove the last comma
+			    	tempStr.setCharAt(tempStr.length()-1, '\0');
+			    	
 			    	tempStr.append(")");
 			    	stack.push(tempStr.toString());
 			    }
@@ -132,9 +154,25 @@ public class CSEMachine {
 		    
 		    else if (item.startsWith("<ID:")) {
 		    	item = getValueofToken (item);
+		    	HashMap currenvMapping = null;
+		    	if (item.equalsIgnoreCase("Print")) {
+		    		stack.push("Print");       // continue in case its just a print.
+		    		continue;
+		    	}
+		    	else if (item.equals("Conc")) {
+		    		stack.push("Conc");
+		    		continue;
+		    	}
 		    	// lookup in the current environment, get the value and push it on to the stack.
-		    	System.out.println ("Looking up " + item + " in env " + (envMarker-1));
-		    	HashMap currenvMapping = (HashMap) environmentHash.get("PE_" + (envMarker-1));
+		    	int tempEnvMarker = envMarker;
+		    	while (tempEnvMarker >=0 ) {
+		    	    System.out.println ("Looking up " + item + " in env " + (tempEnvMarker-1));
+		    	    currenvMapping = (HashMap) environmentHash.get("PE_" + (tempEnvMarker-1));
+		    	    if (currenvMapping != null &&  currenvMapping.get(item) != null) {
+		    	    	break;
+		    	    }
+		    	    tempEnvMarker--;
+		    	}
 		    	String value = (String) currenvMapping.get(item);
 		    	System.out.println ("Identifer " + item + " value pushed to stack " + value);
 		    	stack.push(value);
@@ -146,12 +184,13 @@ public class CSEMachine {
 		    	stack.push(item);
 		    }
 		    
-		    else if (item.equals(STTransformer.GAMMA)) {
+		    else if (item.equals(STTransformer.GAMMA) || item.contains("gamma")) {
+		    	item = STTransformer.GAMMA; // hack for tuples
 		    	String itemAtTopOfStack = (String) stack.peek();
 		    	if ( ! itemAtTopOfStack.startsWith (STTransformer.LAMBDA) ) {    // if its not lambda, then apply rator to rand and push it back.
 		    		String rator = (String) stack.pop();
 		    		String rand = (String) stack.pop();
-		    		String result = apply(rator, rand);
+		    		String result = apply(item, rator, rand);
 		    		stack.push(result);
 		    	}
 		    	else {
@@ -166,14 +205,16 @@ public class CSEMachine {
 		    		
 		    		if (X.indexOf(',') >= 0) {
 		    			X = X.substring(1, X.length()-1);
+		    		
 		    			rand = rand.substring(1, rand.length()-1);
-		    			StringTokenizer randStr = new StringTokenizer (rand);
+		    			//StringTokenizer randStr = new StringTokenizer (rand);
+		    			StringTokenizer randStr = new StringTokenizer (rand, ",");
 		    			ArrayList randArray = new ArrayList ();
 		    			while (randStr.hasMoreElements()) {
-		    				String str = randStr.nextToken();
+		    				String str = randStr.nextToken().trim();
 		    				randArray.add(getValueofToken(str));
 		    			}
-		    			
+                        
 		    			StringTokenizer st = new StringTokenizer(X, ",");
 		    			int i=0;
 		    			while (st.hasMoreTokens()) {
@@ -183,13 +224,13 @@ public class CSEMachine {
 		    				i++;
 		    			}
 		    			environmentHash.put("PE_"+envMarker, currEnvMapping);
-		    			System.out.println ("env hash " + environmentHash);
+		    			System.out.println ("env hash " + "PE_"+envMarker + environmentHash);
 		    		}
 		    		
 		    		else {
 		    		    currEnvMapping.put(X, rand);
 		    		    environmentHash.put("PE_"+envMarker, currEnvMapping);
-		    		    System.out.println ("env hash " + environmentHash);
+		    		    System.out.println ("env hash " +"PE_"+envMarker+ environmentHash);
 		    		}
 		    		
 		    		envMarker++;
@@ -255,6 +296,13 @@ public class CSEMachine {
      	return result;  	
      }
 	 
+	 private boolean isString (String token) {
+     	Pattern p = Pattern.compile("^'[\t\n\\\\\\();,a-zA-Z0-9-+*/<>&.@/:=~|$!#%^_\\[\\]{}\"'?\\s]*'$");  // Strings.. Note the \s space at the end...
+     	Matcher match = p.matcher(token);
+     	boolean result = match.find();
+     	return result;  	
+     }
+	 
 	 private String getExprValue (String token) {
 			int beginIndex = token.indexOf('(')+1;
 			if (beginIndex <= 0) 
@@ -262,21 +310,43 @@ public class CSEMachine {
 			return token.substring(beginIndex, token.length()-1);
 		}
 	 
-	public String apply (String rator, String rand) {
-		if (isOperatorSymbol (rator)) {
+	public String apply (String item, String rator, String rand) {
+		
+		rator = getValueofToken(rator);
+		rand = getValueofToken (rand);
+		
+		if (rator.equals("Print")) {
+			return rand;
+		}
+		
+		else if (rator.equals("Conc")) {
+			rand = rand.replaceAll("'", "");
+			return "Conc" + rand;
+		}
+		else if (rator.startsWith("Conc")) {
+			rand = rand.replaceAll("'", "");
+			rand = rator.replaceAll("Conc", "") + rand;
+			return rand;
+		}
+				
+		else if (isString(rator)) {
+			return rator;
+		}
+		
+		else if (isOperatorSymbol (rator)) {
 			String result = "(" +rator + rand + ")";
 			return result;
 		}
-		else {
-			char sign='+';
+		else  if (isOperatorSymbol (item)) {
+ 		    char sign=item.charAt(0);
 		    rator = getExprValue (rator);
 		    rand = getExprValue (rand);
 		    
 		    //extract the sign from the rator
-		    if (isOperatorPresent (rator)) {
+		    /*if (isOperatorPresent (rator)) {
 		    	sign = rator.charAt(0);
 		    	rator = rator.substring(1, rator.length());
-		    }
+		    }*/
 		    
 		    switch (sign) {
 		    case '+':
@@ -290,13 +360,14 @@ public class CSEMachine {
 		    	result = (new Integer (rand)).intValue() * (new Integer (rator)).intValue();
 		    	return ""+result;
 		    case '/':
-		    	result = (new Integer (rand)).intValue() / (new Integer (rator)).intValue();
+		    	result = (new Integer (rator)).intValue() / (new Integer (rand)).intValue();
 		    	return ""+result;
 		    default:
 		    	return "";
 		    }
 		   
-			
 		}
+		else
+			return "";
 	}
 }
