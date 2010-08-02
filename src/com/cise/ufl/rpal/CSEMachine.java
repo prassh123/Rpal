@@ -92,7 +92,7 @@ public class CSEMachine {
 		    	Integer i1 = new Integer (getValueofToken(rand1));
 		    	Integer i2 = new Integer (getValueofToken(rand2));
 		    	
-		    	if (i1 < i2) {
+		    	if (i1.intValue() == i2.intValue()) {
 		    		stack.push("1");
 		    	}
 		    	else {
@@ -116,14 +116,17 @@ public class CSEMachine {
     			continue;
     		}
 		    else if (item.equals ("or")) {
-		    	Integer i1 = (Integer) stack.pop();
-		    	Integer i2 = (Integer) stack.pop();
+		    	String s1 = (String) stack.pop();
+		    	String s2 = (String) stack.pop();
+		    	
+		    	Integer i1 = new Integer (s1);
+		    	Integer i2 = new Integer (s2);
 		    	
 		    	int result = i1 | i2;
 		    	stack.push(""+result);
 		    	continue;
 		    }
-		    else if (item.startsWith("Beta:")) {
+		    else if (item.startsWith("Beta")) {
 		    	item = item.replaceAll("Beta:", "Beta ");   // note the space after beta...
 		    	if (item.indexOf(" ") >=0) {
 		    	    StringTokenizer st = new StringTokenizer(item, " ");
