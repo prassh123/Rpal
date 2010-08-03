@@ -579,17 +579,28 @@ public class STTransformer extends Parser {
 		    if (t.getTokenValue().equals("tau")) {
 	    	int tempCount = 0;
 	    	TreeNode node = t.getLeftChild();
-	    	
+	    	//System.out.println ("Processing "  + t.getTokenValue() + " left node " + t.getLeftChild().getTokenValue());
 	    	if (node != null) {
+	    		if (node.getTokenValue().equals("tau")) {
+	    			processTauNode(node);
+	    		}
 	    		while (node != null) {
 	    			tempCount++;
 	    			node.setTokenValue(node.getTokenValue()+";");   // a differentiator for the tuple elements.
-	    			node = node.getRightChild();		
+	    			node = node.getRightChild();	
+	    			
+	    			 // check if the internal node is again a tau.
+	    			if (node != null && node.getTokenValue().equals("tau") ) {
+	    				processTauNode(node);
+	    			}
 	    		}
 	    	}
 	    	t.setTokenValue("tau_"+tempCount+";");	
 	        }
 		    sb.append(t.getTokenValue() + " " );
+		    
+		   
+		    
 		 }
 		
 		
@@ -604,6 +615,22 @@ public class STTransformer extends Parser {
 	    //sb.deleteCharAt(sb.length()-1);
 	    return sb;
 	}
+	
+	private void processTauNode (TreeNode t) {
+		if (t.getTokenValue().equals("tau")) { 
+			int tempCount = 0;
+	    	TreeNode node = t.getLeftChild();
+	    	if (node != null) {
+	    		while (node != null) {
+	    			tempCount++;
+	    			node.setTokenValue(node.getTokenValue()+";");   // a differentiator for the tuple elements.
+	    			node = node.getRightChild();		
+	    		}
+	    	}
+	    	t.setTokenValue("tau_"+tempCount);	
+	        }
+	}
+	
 	
 	private String getValueofToken (String token) {
 		int beginIndex = token.indexOf(':')+1;

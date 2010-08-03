@@ -42,7 +42,7 @@ public class CSEMachine {
 	}
 	
 	private String getValueofToken (String token) {
-		
+		token = token.trim();
 		int beginIndex = token.indexOf(':')+1;
 		if (beginIndex <= 0) 
 			return token;
@@ -319,6 +319,11 @@ public class CSEMachine {
 		    		stack.push("Stem");
 		    		continue;
 		    	}
+		    	else if (item.equals("Order")) {
+		    		stack.push("Order");
+		    		continue;
+
+		    	}
 		    	// lookup in the current environment, get the value and push it on to the stack.
 		    	int tempEnvMarker = envMarker;
 		    	while (tempEnvMarker >=0 ) {
@@ -343,18 +348,51 @@ public class CSEMachine {
 		    else if (item.equals(STTransformer.GAMMA) || item.contains("gamma")) {
 		    	item = STTransformer.GAMMA; // hack for tuples
 		    	String itemAtTopOfStack = (String) stack.peek();
-		    	if ( ! itemAtTopOfStack.startsWith (STTransformer.LAMBDA) ) {    // if its not lambda, then apply rator to rand and push it back.
+		    	
+		    	
+		    	 if (itemAtTopOfStack.equals("<Y*>")) {
+			    		// get the next top item in the stack
+		    		 String stackTop = (String) stack.pop();
+		    		 String nextStackTop = (String) stack.pop();
+		    		 
+		    		
+		    		 if (nextStackTop.startsWith(STTransformer.LAMBDA)) {
+		    			 System.out.println ("Next stack top is lambda");
+		    			 // we should push Eta_i_v:c, Workaround is to rename lambda into eta and push it into the stack.
+		    			 
+		    			 nextStackTop = nextStackTop.replace(STTransformer.LAMBDA, "ETA");
+		    			 stack.push(nextStackTop);
+		    			 
+		    		 }
+			     }
+		    	 
+		    	 else if (itemAtTopOfStack.startsWith ("ETA")) {
+		    		 
+		    		 //add 2 gammas
+		    		 controlStructure.add(STTransformer.GAMMA);
+		    		 controlStructure.add(STTransformer.GAMMA);
+		    		 
+		    		 String lambda  = itemAtTopOfStack;
+		    		 lambda = lambda.replace("ETA", STTransformer.LAMBDA);
+		    		 stack.push(lambda);
+		    		 
+		    	 }
+		    	 
+		    
+		    	 else if ( ! itemAtTopOfStack.startsWith (STTransformer.LAMBDA) ) {    // if its not lambda, then apply rator to rand and push it back.
 		    		String rator = (String) stack.pop();
 		    		String rand = (String) stack.pop();
 		    		String result = apply(item, rator, rand);
 		    		stack.push(result);
-		    	}
+		    	 }
+		    	
+		    	
 		    	else {
 		    		// need to handle tuples...
 		    		String lambdaNode = (String) stack.pop();
 		    		String rand = (String) stack.pop();
-		    		System.out.println ("lambda node " + lambdaNode);
-		    		System.out.println ("rand node " + rand);
+		    		//System.out.println ("lambda node " + lambdaNode);
+		    		//System.out.println ("rand node " + rand);
 		    		
 		    		String X = getX(lambdaNode);
 		    		HashMap currEnvMapping = new HashMap ();
@@ -362,15 +400,55 @@ public class CSEMachine {
 		    		if (X.indexOf(',') >= 0) {
 		    			X = X.substring(1, X.length()-1);
 		    		
-		    			rand = rand.substring(1, rand.length()-1);
+		    			
 		    			//StringTokenizer randStr = new StringTokenizer (rand);
-		    			StringTokenizer randStr = new StringTokenizer (rand, ",");
 		    			ArrayList randArray = new ArrayList ();
-		    			while (randStr.hasMoreElements()) {
-		    				String str = randStr.nextToken().trim();
-		    				randArray.add(getValueofToken(str));
+		    			
+		    			/* Ugly hack to get over tuples of tuples */
+		    			if (rand.startsWith("((")) {
+		    				
+		    				rand = rand.substring(1);
+		    				//StringTokenizer st = new StringTokenizer (rand, ")");
+		    				int randLength = rand.length();
+		    				int i=0;
+		    				StringBuffer tempsb = new StringBuffer ();
+		    				while (i < randLength) {
+		    					char a = rand.charAt(i);
+		    					if (a == ')') {
+		    						if (i != randLength-1 )
+		    						    tempsb.append (a);      // we do not want the last tuple to have a )
+		    						randArray.add(tempsb.toString());
+		    						tempsb = new StringBuffer ();
+		    					}
+		    					else {
+		    						tempsb.append(a);
+		    					}
+		    					i++;
+		    				}
+		    				for ( i=0; i < randArray.size(); i++) {
+		    					String str = (String) randArray.get(i);
+		    					if (str.startsWith(",")) {
+		    						str = str.substring (1);
+		    						randArray.set(i, str);
+		    					}
+		    					if (str.endsWith(",")) {
+		    						str = str.substring (0, str.length()-1);
+		    						randArray.set(i, str);
+		    					}
+		    				}
+		    			
 		    			}
-                        
+		    			/* End Ugly hack to get over tuples of tuples */
+		    			else {
+		    				rand = rand.substring(1, rand.length()-1);
+		    			    StringTokenizer randStr = new StringTokenizer (rand, ",");
+		    			
+		    			    while (randStr.hasMoreElements()) {
+		    				    String str = randStr.nextToken().trim();
+		    				    randArray.add(getValueofToken(str));
+		    			    }
+		    			}
+		    			
 		    			StringTokenizer st = new StringTokenizer(X, ",");
 		    			int i=0;
 		    			while (st.hasMoreTokens()) {
@@ -477,6 +555,27 @@ public class CSEMachine {
 	 
 	public String apply (String item, String rator, String rand) {
 		
+		
+        if (rator.startsWith("(")) {      // this is for tuples.
+			
+			rand = getValueofToken (rand.trim());
+			rator = rator.replaceAll("\\(", "");
+			rator = rator.replaceAll("\\)", "");
+			
+			int index = new Integer (rand) -1;
+			
+			String[] strArr = rator.split(",");
+			String result = strArr[index];
+			return result;
+			
+		}
+        
+        if (getValueofToken(rator).equals("Order")) {
+        	
+        	String[] strArray = rand.split(",");
+        	return "<INT:"+strArray.length+">";    	
+        }
+		
 		rator = getValueofToken(rator);
 		rand = getValueofToken (rand);
 		
@@ -506,6 +605,7 @@ public class CSEMachine {
 			rand = rator.replaceAll("Conc", "") + rand;
 			return rand;
 		}
+		
 				
 		else if (isString(rator)) {
 			return rator;
@@ -520,19 +620,15 @@ public class CSEMachine {
 		    rator = getExprValue (rator);
 		    rand = getExprValue (rand);
 		    
-		    //extract the sign from the rator
-		    /*if (isOperatorPresent (rator)) {
-		    	sign = rator.charAt(0);
-		    	rator = rator.substring(1, rator.length());
-		    }*/
-		    
+		
 		    switch (sign) {
 		    case '+':
 		    	int result = (new Integer (rand)).intValue() + (new Integer (rator)).intValue();
 		    	return ""+result;
 		    	
 		    case '-':
-		    	result = (new Integer (rand)).intValue() - (new Integer (rator)).intValue();
+		    	System.out.println (rator);
+		    	result = (new Integer (rator)).intValue() - (new Integer (rand)).intValue();
 		    	return ""+result;
 		    case '*':
 		    	result = (new Integer (rand)).intValue() * (new Integer (rator)).intValue();
@@ -545,6 +641,7 @@ public class CSEMachine {
 		    }
 		   
 		}
+		
 		else
 			return "";
 	}
