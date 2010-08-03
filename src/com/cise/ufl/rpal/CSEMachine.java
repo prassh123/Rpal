@@ -78,6 +78,28 @@ public class CSEMachine {
 		    if (item.equals("")) {
 		    	continue;
 		    }
+		    else if (item.equals("aug")) {
+		    	String rator = (String) stack.pop();
+		    	rator = rator.replaceAll("\\(", "");
+		    	rator = rator.replaceAll("\\)", "");
+		    	
+		    	
+		    	
+		    	String rand = (String) stack.pop();
+		    	rand = rand.replaceAll("\\(", "");
+		    	rand = rand.replaceAll("\\)", "");
+		    	
+		    	rand = rator + "," + rand;
+		    	StringBuffer sb = new StringBuffer ();
+		    	StringTokenizer st = new StringTokenizer (rand, ",");
+		    	while (st.hasMoreTokens()) {
+		    		sb.append (getValueofToken(st.nextToken().trim()) + ",");
+		    	}
+		    	sb.deleteCharAt(sb.length()-1);  // deleting the last comma
+		    	rand = "(" + sb.toString() + ")";
+		    	stack.push(rand);
+		    	continue;
+		    }
 		    else if (item.equals("neg")) {
 		    	String rand = (String) stack.pop();
 		    	rand = getValueofToken (rand);
@@ -85,14 +107,23 @@ public class CSEMachine {
 		    	stack.push(rand);
 		    	continue;
 		    }
+		   
 		    else if (item.equals("eq")) {
 		    	String rand1 = (String) stack.pop();
 		    	String rand2 = (String) stack.pop();
 		    	
-		    	Integer i1 = new Integer (getValueofToken(rand1));
-		    	Integer i2 = new Integer (getValueofToken(rand2));
+		    	//Integer i1 = new Integer (getValueofToken(rand1));
+		    	//Integer i2 = new Integer (getValueofToken(rand2));
 		    	
-		    	if (i1.intValue() == i2.intValue()) {
+		    	String i1 = getValueofToken(rand1);
+		    	String i2 = getValueofToken(rand2);
+		    	
+		    	i1 = i1.replaceAll("'", "");
+		    	i2 = i2.replaceAll("'", "");
+		    	
+		    	
+		    	//if (i1.intValue() == i2.intValue()) {
+		    	if (i1.equals (i2)) {
 		    		stack.push("1");
 		    	}
 		    	else {
@@ -284,6 +315,10 @@ public class CSEMachine {
 		    		stack.push("Stern");
 		    		continue;
 		    	}
+		    	else if (item.equals("Stem")) {
+		    		stack.push("Stem");
+		    		continue;
+		    	}
 		    	// lookup in the current environment, get the value and push it on to the stack.
 		    	int tempEnvMarker = envMarker;
 		    	while (tempEnvMarker >=0 ) {
@@ -450,10 +485,15 @@ public class CSEMachine {
 		}
 		
 		else if (rator.equals("Stern")) {
-			
     		rand = rand.replaceAll("'", "");   // replace all single quotes.
     		rand = rand.substring(1);
     		return rand;
+		}
+		else if (rator.equals("Stem")) {
+			rand = rand.replaceAll("'", "");   // replace all single quotes.
+			rand = ""+ rand.charAt(0);
+			return rand;
+			
 		}
 		
 		else if (rator.equals("Conc")) {
