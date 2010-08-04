@@ -479,14 +479,14 @@ public class STTransformer extends Parser {
 	    		}
 	    		sb.deleteCharAt(sb.length()-1);
 	    	   // System.out.println (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb.toString() + "}"); 
-	    	    controlStructure.add (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb.toString() + "}"); 	
+	    	    controlStructure.add (t.getTokenValue() + "~" + (counter) + "~" + "{" + sb.toString() + "}"); 	
 	    	    counter++;
 	    	   
 	    	}
 
 	    	else {
 	    	  //  System.out.println (t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue())); 
-	    	    controlStructure.add (t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue())); 	
+	    	    controlStructure.add (t.getTokenValue() + "~" + (counter) + "~" + getValueofToken(t.getLeftChild().getTokenValue())); 	
 	    	    counter++;
 	    	    
 	    	}
@@ -558,7 +558,7 @@ public class STTransformer extends Parser {
 		    		sb1.deleteCharAt(sb1.length()-1);
 		    	   // System.out.println (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb.toString() + "}"); 
 		    	   // controlStructure.add (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb1.toString() + "}"); 	
-		    		sb.append (t.getTokenValue() + "_" + (counter) + "_" + "{" + sb1.toString() + "}");
+		    		sb.append (t.getTokenValue() + "~" + (counter) + "~" + "{" + sb1.toString() + "}");
 		    	    counter++;
 		    	   
 		    	}
@@ -566,7 +566,7 @@ public class STTransformer extends Parser {
 		    	else {
 		    	   // System.out.println (t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue())); 
 		    	   // controlStructure.add (t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue())); 	
-		    		sb.append(t.getTokenValue() + "_" + (counter) + "_" + getValueofToken(t.getLeftChild().getTokenValue()) +" ");
+		    		sb.append(t.getTokenValue() + "~" + (counter) + "~" + getValueofToken(t.getLeftChild().getTokenValue()) +" ");
 		    	    counter++;
 		    	    
 		    	}

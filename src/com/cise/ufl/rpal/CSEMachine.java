@@ -219,41 +219,7 @@ public class CSEMachine {
 		    			removeDelta(controlStructure, "deltathen:");
 		    		}
 		    	}
-		    	/*else {
-		    		item = item.replaceAll("Beta:", "");
-		    		if (item.equals("eq")) {
-		    			String rator = (String) stack.pop();
-		    			String rand = (String) stack.pop();
-		    			
-		    			if (getValueofToken(rator).equals(getValueofToken(rand))) {
-		    				removeDelta(controlStructure, "deltaelse:");
-		    			}
-		    			else {
-		    				removeDelta(controlStructure, "deltathen:");
-		    			}
-		    			
-		    		}
-		    		else if (item.equals("ls")) {
-		    			String rator = (String) stack.pop();
-		    			String rand = (String) stack.pop();
-		    			
-		    			Integer i1 = new Integer( getValueofToken(rator) );
-		    			Integer i2 = new Integer( getValueofToken(rand) );
-		    			
-		    			if (i1 < i2 ) {
-		    				removeDelta(controlStructure, "deltaelse:");
-		    			}
-		    			else {
-		    				removeDelta(controlStructure, "deltathen:");
-		    			}
-		    		}
-		    		else if (item.equals("or")) {
-		    			String rator = (String) stack.pop();
-		    			String rand = (String) stack.pop();
-		    			
-		    			
-		    		}
-		    	}*/
+	
 		    	continue;
 		    }
 		    else if (item.startsWith("deltaelse:")) {
@@ -356,7 +322,7 @@ public class CSEMachine {
 		    else if (item.startsWith("<ID:")) {
 		    	item = getValueofToken (item);
 		    	HashMap currenvMapping = null;
-		    	if (item.equalsIgnoreCase("Print")) {
+		    	if (item.equals("Print")) {
 		    		stack.push("Print");       // continue in case its just a print.
 		    		continue;
 		    	}
@@ -438,6 +404,17 @@ public class CSEMachine {
 		    		 
 		    	 }
 		    	 
+		    	 else if (itemAtTopOfStack.equals ("Print")) {
+		    		 String print = (String) stack.pop();   // this would be the print statement, get rid of it.
+		    		 String result = (String) stack.pop();  // the result
+		    		 //should we get rid of STRs? 
+		    		 result = result.trim();
+		    		 result = result.replaceAll("<STR:", "");
+		    		 result = result.replaceAll(">", "");
+		    		 result = result.replaceAll("<", "");
+		    		 result = result.replaceAll("INT:", "");
+		    		 stack.push(result);
+		    	 }
 		    
 		    	 else if ( ! itemAtTopOfStack.startsWith (STTransformer.LAMBDA) ) {    // if its not lambda, then apply rator to rand and push it back.
 		    		String rator = (String) stack.pop();
@@ -562,8 +539,8 @@ public class CSEMachine {
 	}
 	
 	public int getK(String lambdaNode) {
-		int startIndex= lambdaNode.indexOf("_")+1;
-		int endIndex = lambdaNode.lastIndexOf('_');
+		int startIndex= lambdaNode.indexOf("~")+1;
+		int endIndex = lambdaNode.lastIndexOf('~');
 		 
 		String k = lambdaNode.substring(startIndex, endIndex);
 		return new Integer(k).intValue();
@@ -577,7 +554,7 @@ public class CSEMachine {
 			return st;
 		}
 		
-		int startIndex = lambdaNode.lastIndexOf('_')+1;
+		int startIndex = lambdaNode.lastIndexOf('~')+1;
 		int endIndex = lambdaNode.indexOf(":");
 		String X = lambdaNode.substring(startIndex, endIndex);
 		
