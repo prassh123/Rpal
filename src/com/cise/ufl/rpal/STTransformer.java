@@ -574,6 +574,32 @@ public class STTransformer extends Parser {
 		    	stack.add(t.getLeftChild().getRightChild());   		
 		    	t.setLeftChild(null);   // hack to prevent the below getLeft child from running.
 		    }
+		 else if (t.getTokenValue().equals("->")) {
+			 StringBuffer deltaThen = new StringBuffer ();
+	    	 StringBuffer deltaElse = new StringBuffer ();
+	    	 StringBuffer B = new StringBuffer ();
+	    	 StringBuffer result = new StringBuffer ();
+	    		
+	    		litePreOrderTraverse(t.getLeftChild().getRightChild().getRightChild(), deltaElse, "");
+	    		//controlStructure.add ("deltaelse:" + deltaElse);
+	    		result.append("deltaelse:" + deltaElse);
+	    		
+	    		//disconnect the else part
+	    		t.getLeftChild().getRightChild().setRightChild(null);
+	    		
+	    		litePreOrderTraverse(t.getLeftChild().getRightChild(), deltaThen, "then");
+	    		//controlStructure.add ("deltathen:" + deltaThen);
+	    		result.append("deltathen:" + deltaThen);
+	    		//disconnect the then part
+	    		t.getLeftChild().setRightChild(null);
+	    		
+	    		litePreOrderTraverse(t.getLeftChild(), B, "B");
+	     		//controlStructure.add("Beta:" + B);    	
+	    		result.append("Beta:" + B);
+	    	
+	     		// add this to the end  ?
+	    		sb.append(result);
+		 }
 		
 		 else {
 		    if (t.getTokenValue().equals("tau")) {
@@ -598,9 +624,6 @@ public class STTransformer extends Parser {
 	    	t.setTokenValue("tau_"+tempCount+";");	
 	        }
 		    sb.append(t.getTokenValue() + " " );
-		    
-		   
-		    
 		 }
 		
 		

@@ -80,6 +80,8 @@ public class CSEMachine {
 		    }
 		    else if (item.equals("aug")) {
 		    	String rator = (String) stack.pop();
+		    	
+		    	
 		    	rator = rator.replaceAll("\\(", "");
 		    	rator = rator.replaceAll("\\)", "");
 		    	
@@ -89,7 +91,13 @@ public class CSEMachine {
 		    	rand = rand.replaceAll("\\(", "");
 		    	rand = rand.replaceAll("\\)", "");
 		    	
-		    	rand = rator + "," + rand;
+		    	if (rator.equals("<nil>")) {
+		    	    stack.push(rand);
+		    	    continue;
+		    	}
+		    	else {
+		    	    rand = rator + "," + rand;
+		    	}
 		    	StringBuffer sb = new StringBuffer ();
 		    	StringTokenizer st = new StringTokenizer (rand, ",");
 		    	while (st.hasMoreTokens()) {
@@ -128,6 +136,43 @@ public class CSEMachine {
 		    	}
 		    	else {
 		    		stack.push("0");
+		    	}
+		    	continue;
+		    }
+		    else if (item.equals("&")) {
+		    	System.out.println ("Prash ");
+		    	String rand1 = (String) stack.pop();
+		    	String rand2 = (String) stack.pop();
+		    	
+		    	Integer i1 = new Integer( getValueofToken(rand1) );
+    			Integer i2 = new Integer( getValueofToken(rand2) );
+    			
+    			String result = "" + (i1 & i2);
+    			stack.push(result);
+    			continue;		
+		    }
+		    else if (item.equals ("ne")) {
+		    	String rand1 = (String) stack.pop();
+		    	String rand2 = (String) stack.pop();
+		    	
+		    	rand1 = getValueofToken (rand1);
+		    	rand2 = getValueofToken (rand2);
+		    	
+		    	if (! rand1.equals(rand2)) {
+		    		stack.push("1");
+		    	}
+		    	else 
+		    		stack.push("0");
+		    	continue;
+		    }
+		    else if (item.equals("not")) {
+		    	String rand1 = (String) stack.pop();
+		    	
+		    	if (rand1.equals("0")) {
+		    		stack.push("1");
+		    	}
+		    	else {
+		    	    stack.push("0");	
 		    	}
 		    	continue;
 		    }
@@ -220,7 +265,15 @@ public class CSEMachine {
 		    	continue;
 		    }
 		    else if (item.startsWith("deltathen:")) {
+		    	
 		    	item = item.replaceAll("deltathen:", "");
+		    	// if its a string, just return it.
+		    	if (item.startsWith("<STR:") || isString (item)) {
+		    		System.out.println ("Hey! this is a string ");
+		    		controlStructure.add(item);
+		    		continue;
+		    	}
+		    	
 		    	StringTokenizer st = new StringTokenizer (item, " ");
 		    	while (st.hasMoreTokens()) {
 		    		controlStructure.add(st.nextToken());
@@ -322,7 +375,14 @@ public class CSEMachine {
 		    	else if (item.equals("Order")) {
 		    		stack.push("Order");
 		    		continue;
-
+		    	}
+		    	else if (item.equals("Istuple")) {
+		    		stack.push("Istuple");
+		    		continue;
+		    	}
+		    	else if (item.equals ("Isstring")) {
+		    		stack.push("Isstring");
+		    		continue;
 		    	}
 		    	// lookup in the current environment, get the value and push it on to the stack.
 		    	int tempEnvMarker = envMarker;
@@ -575,6 +635,12 @@ public class CSEMachine {
         	String[] strArray = rand.split(",");
         	return "<INT:"+strArray.length+">";    	
         }
+        else if (getValueofToken(rator).equals("Istuple")) {
+        	if (rand.indexOf(',') >=0 ) 
+        		return ""+1;
+        	else 
+        		return ""+0;
+        }
 		
 		rator = getValueofToken(rator);
 		rand = getValueofToken (rand);
@@ -582,6 +648,7 @@ public class CSEMachine {
 		if (rator.equals("Print")) {
 			return rand;
 		}
+		
 		
 		else if (rator.equals("Stern")) {
     		rand = rand.replaceAll("'", "");   // replace all single quotes.
@@ -593,6 +660,13 @@ public class CSEMachine {
 			rand = ""+ rand.charAt(0);
 			return rand;
 			
+		}
+		else if (rator.equals ("Isstring")) {
+			if (isString  (rand)) {
+				return "1";
+			}
+			else 
+				return "0";	
 		}
 		
 		else if (rator.equals("Conc")) {
